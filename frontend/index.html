@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CrackScan — AI Structural Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  /* ── Reset & Tokens ───────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0b0c0f;
+    --bg2:        #111318;
+    --bg3:        #1a1c24;
+    --border:     #2a2d38;
+    --border2:    #3a3d4d;
+    --text:       #e8eaf2;
+    --text2:      #8b8fa8;
+    --text3:      #5a5e72;
+    --accent:     #4f7cff;
+    --accent2:    #7b5ea7;
+
+    --safe:       #22c55e;
+    --safe-bg:    rgba(34,197,94,0.10);
+    --safe-br:    rgba(34,197,94,0.30);
+
+    --mod:        #f59e0b;
+    --mod-bg:     rgba(245,158,11,0.10);
+    --mod-br:     rgba(245,158,11,0.30);
+
+    --danger:     #ef4444;
+    --danger-bg:  rgba(239,68,68,0.10);
+    --danger-br:  rgba(239,68,68,0.30);
+
+    --none-bg:    rgba(79,124,255,0.08);
+    --none-br:    rgba(79,124,255,0.25);
+
+    --radius:     12px;
+    --radius-sm:  8px;
+    --font-head:  'Syne', sans-serif;
+    --font-mono:  'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid noise texture overlay ─────────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% -10%, rgba(79,124,255,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 110%, rgba(123,94,167,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Layout ──────────────────────────────────────────────────────────────── */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── Header ──────────────────────────────────────────────────────────────── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky; top: 0;
+    backdrop-filter: blur(20px);
+    background: rgba(11,12,15,0.85);
+    z-index: 100;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-head);
+    font-size: 1.4rem; font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .logo-sub { font-size: 0.75rem; color: var(--text3); font-weight: 400; margin-top: 2px; }
+  .header-badge {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    color: var(--text2);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .status-dot {
+    display: inline-block; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--safe);
+    margin-right: 7px;
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────────────────── */
+  .hero {
+    padding: 64px 0 48px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-family: var(--font-head);
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    color: var(--text2); font-size: 1rem;
+    max-width: 520px; margin: 0 auto 0;
+    line-height: 1.7;
+  }
+  .hero-stats {
+    display: flex; justify-content: center; gap: 40px;
+    margin-top: 36px; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-val {
+    font-family: var(--font-head);
+    font-size: 1.6rem; font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 0.72rem; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ── Upload Zone ─────────────────────────────────────────────────────────── */
+  .upload-section { margin-bottom: 40px; }
+
+  .dropzone {
+    border: 2px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 64px 40px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--bg2);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .dropzone::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(79,124,255,0.04), transparent);
+    pointer-events: none;
+  }
+  .dropzone.drag-over {
+    border-color: var(--accent);
+    background: rgba(79,124,255,0.05);
+    transform: scale(1.005);
+  }
+  .dz-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.7; }
+  .dz-title {
+    font-family: var(--font-head);
+    font-size: 1.2rem; font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .dz-sub { color: var(--text2); font-size: 0.85rem; line-height: 1.6; }
+  .dz-sub strong { color: var(--accent); }
+
+  #file-input { display: none; }
+
+  /* ── Control Bar ─────────────────────────────────────────────────────────── */
+  .controls {
+    display: flex; gap: 12px; margin-top: 16px;
+    flex-wrap: wrap; align-items: center;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    border: none; border-radius: var(--radius-sm);
+    font-family: var(--font-mono); font-size: 0.82rem;
+    cursor: pointer; font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(79,124,255,0.35);
+  }
+  .btn-secondary {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--border2); background: var(--border);
+  }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+  .threshold-wrap {
+    display: flex; align-items: center; gap: 10px;
+    margin-left: auto;
+    background: var(--bg3); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: var(--radius-sm);
+  }
+  .threshold-wrap label { font-size: 0.78rem; color: var(--text2); white-space: nowrap; }
+  .threshold-wrap input[type=range] {
+    width: 100px; accent-color: var(--accent);
+  }
+  .threshold-val { font-size: 0.78rem; color: var(--accent); min-width: 32px; }
+
+  /* ── Progress ─────────────────────────────────────────────────────────────── */
+  .progress-wrap {
+    margin: 20px 0;
+    display: none;
+  }
+  .progress-wrap.visible { display: block; }
+  .progress-header {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; color: var(--text2);
+    margin-bottom: 8px;
+  }
+  .progress-bar-outer {
+    width: 100%; height: 6px;
+    background: var(--bg3); border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 100px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+  .progress-steps {
+    display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .step-chip {
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 0.7rem; border: 1px solid var(--border);
+    color: var(--text3); background: var(--bg2);
+    transition: all 0.3s;
+  }
+  .step-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,0.1); }
+  .step-chip.done { border-color: var(--safe); color: var(--safe); background: var(--safe-bg); }
+
+  /* ── Summary Cards ────────────────────────────────────────────────────────── */
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px; margin-bottom: 32px;
+  }
+  .summary-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .summary-card:hover { border-color: var(--border2); }
+  .sc-label { font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+  .sc-value { font-family: var(--font-head); font-size: 2rem; font-weight: 800; }
+  .sc-sub { font-size: 0.72rem; color: var(--text3); margin-top: 4px; }
+  .sc-value.green { color: var(--safe); }
+  .sc-value.yellow { color: var(--mod); }
+  .sc-value.red { color: var(--danger); }
+  .sc-value.blue { color: var(--accent); }
+
+  /* ── Results Grid ─────────────────────────────────────────────────────────── */
+  .results-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+  }
+  .results-title { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; }
+  .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-tab {
+    padding: 5px 12px; border-radius: 100px; font-size: 0.75rem;
+    border: 1px solid var(--border); background: var(--bg2);
+    color: var(--text2); cursor: pointer; transition: all 0.2s;
+    font-family: var(--font-mono);
+  }
+  .filter-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,0.1); }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── Image Card ───────────────────────────────────────────────────────────── */
+  .img-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: card-in 0.35s ease both;
+  }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .img-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+
+  .img-card.safe   { border-color: var(--safe-br); }
+  .img-card.moderate { border-color: var(--mod-br); }
+  .img-card.dangerous { border-color: var(--danger-br); }
+  .img-card.none  { border-color: var(--none-br); }
+
+  .card-img-wrap {
+    position: relative; width: 100%; padding-top: 70%;
+    overflow: hidden;
+  }
+  .card-img-wrap img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .img-card:hover .card-img-wrap img { transform: scale(1.04); }
+
+  .card-badge {
+    position: absolute; top: 8px; right: 8px;
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 0.65rem; font-weight: 600;
+    backdrop-filter: blur(8px);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .badge-safe     { background: rgba(34,197,94,0.85);  color: #000; }
+  .badge-moderate { background: rgba(245,158,11,0.85); color: #000; }
+  .badge-dangerous{ background: rgba(239,68,68,0.85);  color: #fff; }
+  .badge-none     { background: rgba(79,124,255,0.85); color: #fff; }
+
+  .card-body { padding: 14px; }
+  .card-name {
+    font-size: 0.78rem; color: var(--text2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 10px;
+  }
+  .card-type {
+    font-family: var(--font-head); font-size: 0.88rem; font-weight: 700;
+    margin-bottom: 6px; text-transform: capitalize;
+  }
+  .card-severity {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.72rem; padding: 3px 10px; border-radius: 100px;
+    border: 1px solid; margin-bottom: 12px;
+  }
+  .card-severity.safe     { color: var(--safe);   border-color: var(--safe-br);   background: var(--safe-bg); }
+  .card-severity.moderate { color: var(--mod);    border-color: var(--mod-br);    background: var(--mod-bg); }
+  .card-severity.dangerous{ color: var(--danger); border-color: var(--danger-br); background: var(--danger-bg); }
+  .card-severity.none     { color: var(--accent); border-color: var(--none-br);   background: var(--none-bg); }
+
+  /* Confidence bar */
+  .conf-label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text3); margin-bottom: 4px; }
+  .conf-bar { width: 100%; height: 4px; background: var(--bg3); border-radius: 100px; overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 100px; transition: width 0.6s ease; }
+  .conf-fill.safe     { background: var(--safe); }
+  .conf-fill.moderate { background: var(--mod); }
+  .conf-fill.dangerous{ background: var(--danger); }
+  .conf-fill.none     { background: var(--accent); }
+
+  .card-detail { font-size: 0.68rem; color: var(--text3); margin-top: 8px; line-height: 1.5; }
+
+  /* ── Empty / Loading states ───────────────────────────────────────────────── */
+  .empty-state {
+    text-align: center; padding: 80px 20px;
+    color: var(--text3); display: none;
+  }
+  .empty-state.visible { display: block; }
+  .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
+  .empty-title { font-family: var(--font-head); font-size: 1.1rem; margin-bottom: 8px; color: var(--text2); }
+
+  /* ── Toast ────────────────────────────────────────────────────────────────── */
+  #toast {
+    position: fixed; bottom: 28px; right: 28px; z-index: 999;
+    background: var(--bg3); border: 1px solid var(--border2);
+    padding: 12px 20px; border-radius: var(--radius-sm);
+    font-size: 0.82rem; color: var(--text);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+    pointer-events: none; max-width: 320px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── Preview thumbnails (before analysis) ─────────────────────────────────── */
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px; margin: 16px 0;
+    max-height: 240px; overflow-y: auto;
+  }
+  .preview-thumb {
+    aspect-ratio: 1; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--border);
+    position: relative; background: var(--bg3);
+  }
+  .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .preview-count {
+    font-size: 0.78rem; color: var(--text2);
+    margin-bottom: 6px;
+  }
+
+  /* ── API URL input ─────────────────────────────────────────────────────────── */
+  .api-config {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 14px;
+    margin-bottom: 16px;
+  }
+  .api-config label { font-size: 0.72rem; color: var(--text3); white-space: nowrap; }
+  .api-config input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: var(--font-mono); font-size: 0.8rem;
+  }
+  .api-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .api-dot.online  { background: var(--safe); }
+  .api-dot.offline { background: var(--danger); }
+  .api-dot.checking { background: var(--mod); animation: pulse-dot 1s infinite; }
+
+  /* ── Scrollbar ───────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 100px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* ── Responsive ──────────────────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .hero { padding: 36px 0 28px; }
+    .hero-stats { gap: 24px; }
+    .controls { gap: 8px; }
+    .threshold-wrap { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🔍</div>
+        <div>
+          CrackScan
+          <div class="logo-sub">AI Structural Analysis Platform</div>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="status-dot" id="model-dot"></span>
+        <span id="model-status">Engine Ready</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Detect Structural Cracks<br/><span>Instantly at Scale</span></h1>
+    <p>Upload up to 1,000 images. Get AI-powered crack detection, type classification, and severity ratings in seconds.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-val">1000</div><div class="stat-label">Max Images</div></div>
+      <div class="stat"><div class="stat-val">4</div><div class="stat-label">Crack Types</div></div>
+      <div class="stat"><div class="stat-val">3</div><div class="stat-label">Severity Levels</div></div>
+      <div class="stat"><div class="stat-val">CV+AI</div><div class="stat-label">Engine</div></div>
+    </div>
+  </div>
+
+  <!-- API Config -->
+  <div class="api-config">
+    <label>API URL</label>
+    <input type="text" id="api-url" value="http://localhost:8000" placeholder="http://localhost:8000"/>
+    <div class="api-dot checking" id="api-dot"></div>
+  </div>
+
+  <!-- Upload Section -->
+  <div class="upload-section">
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="file-input" multiple accept="image/*"/>
+      <div class="dz-icon">📂</div>
+      <div class="dz-title">Drop images here or click to browse</div>
+      <div class="dz-sub">
+        Supports JPG, PNG, WEBP, BMP · <strong>Up to 1,000 images</strong> at once<br/>
+        Drag & drop your entire folder of structural images
+      </div>
+    </div>
+
+    <!-- Preview strip -->
+    <div id="preview-section" style="display:none;">
+      <div class="preview-count" id="preview-count"></div>
+      <div class="preview-grid" id="preview-grid"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn btn-primary" id="analyze-btn" disabled>
+        ⚡ Analyze Images
+      </button>
+      <button class="btn btn-secondary" id="clear-btn" disabled>
+        🗑 Clear
+      </button>
+      <button class="btn btn-ghost" id="csv-btn" disabled>
+        ⬇ Download CSV
+      </button>
+
+      <div class="threshold-wrap">
+        <label>Confidence Threshold</label>
+        <input type="range" id="threshold" min="0" max="100" value="50"/>
+        <span class="threshold-val" id="threshold-val">50%</span>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-header">
+        <span id="progress-label">Uploading images…</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progress-bar"></div>
+      </div>
+      <div class="progress-steps">
+        <div class="step-chip" id="step-upload">📤 Uploading</div>
+        <div class="step-chip" id="step-preprocess">🔧 Preprocessing</div>
+        <div class="step-chip" id="step-inference">🧠 Running Model</div>
+        <div class="step-chip" id="step-render">✨ Rendering</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Row -->
+  <div class="summary-grid" id="summary-grid" style="display:none;">
+    <div class="summary-card">
+      <div class="sc-label">Total Analyzed</div>
+      <div class="sc-value blue" id="sum-total">0</div>
+      <div class="sc-sub">images processed</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">Cracks Detected</div>
+      <div class="sc-value red" id="sum-cracks">0</div>
+      <div class="sc-sub" id="sum-cracks-pct">— of total</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">Safe / No Crack</div>
+      <div class="sc-value green" id="sum-safe">0</div>
+      <div class="sc-sub">no action needed</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">Moderate</div>
+      <div class="sc-value yellow" id="sum-mod">0</div>
+      <div class="sc-sub">monitor & re-inspect</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">Dangerous</div>
+      <div class="sc-value red" id="sum-danger">0</div>
+      <div class="sc-sub">immediate action</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">Processing Time</div>
+      <div class="sc-value blue" id="sum-time">—</div>
+      <div class="sc-sub">total seconds</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-section" style="display:none;">
+    <div class="results-header">
+      <div class="results-title">Analysis Results</div>
+      <div class="filter-tabs">
+        <div class="filter-tab active" data-filter="all">All</div>
+        <div class="filter-tab" data-filter="crack">Cracked</div>
+        <div class="filter-tab" data-filter="safe">Safe</div>
+        <div class="filter-tab" data-filter="dangerous">Dangerous</div>
+        <div class="filter-tab" data-filter="moderate">Moderate</div>
+      </div>
+    </div>
+    <div class="results-grid" id="results-grid"></div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state visible" id="empty-state">
+    <div class="empty-icon">🏗️</div>
+    <div class="empty-title">No images analyzed yet</div>
+    <div>Upload structural images above to begin crack detection analysis.</div>
+  </div>
+
+</div>
+</main>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+/* ──────────────────────────────────────────────────────────────────────────── *
+ *  CrackScan — Frontend Logic                                                  *
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let uploadedFiles = [];
+let analysisResults = [];
+let activeFilter = 'all';
+let confidenceThreshold = 0.50;
+
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const dropzone       = document.getElementById('dropzone');
+const fileInput      = document.getElementById('file-input');
+const analyzeBtn     = document.getElementById('analyze-btn');
+const clearBtn       = document.getElementById('clear-btn');
+const csvBtn         = document.getElementById('csv-btn');
+const previewSection = document.getElementById('preview-section');
+const previewGrid    = document.getElementById('preview-grid');
+const previewCount   = document.getElementById('preview-count');
+const progressWrap   = document.getElementById('progress-wrap');
+const progressBar    = document.getElementById('progress-bar');
+const progressLabel  = document.getElementById('progress-label');
+const progressPct    = document.getElementById('progress-pct');
+const resultsSection = document.getElementById('results-section');
+const resultsGrid    = document.getElementById('results-grid');
+const summaryGrid    = document.getElementById('summary-grid');
+const emptyState     = document.getElementById('empty-state');
+const thresholdInput = document.getElementById('threshold');
+const thresholdVal   = document.getElementById('threshold-val');
+const apiUrlInput    = document.getElementById('api-url');
+const apiDot         = document.getElementById('api-dot');
+
+// ── API health check ───────────────────────────────────────────────────────────
+async function checkApiHealth() {
+  const base = apiUrlInput.value.trim().replace(/\/$/, '');
+  try {
+    const r = await fetch(`${base}/health`, { signal: AbortSignal.timeout(3000) });
+    if (r.ok) {
+      apiDot.className = 'api-dot online';
+      document.getElementById('model-status').textContent = 'Model Online';
+    } else {
+      apiDot.className = 'api-dot offline';
+      document.getElementById('model-status').textContent = 'API Error';
+    }
+  } catch {
+    apiDot.className = 'api-dot offline';
+    document.getElementById('model-status').textContent = 'Offline — Demo Mode';
+  }
+}
+checkApiHealth();
+setInterval(checkApiHealth, 10000);
+apiUrlInput.addEventListener('change', checkApiHealth);
+
+// ── Threshold ─────────────────────────────────────────────────────────────────
+thresholdInput.addEventListener('input', () => {
+  confidenceThreshold = thresholdInput.value / 100;
+  thresholdVal.textContent = `${thresholdInput.value}%`;
+  if (analysisResults.length) renderResults();
+});
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────────
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('drag-over');
+  handleFiles([...e.dataTransfer.files]);
+});
+fileInput.addEventListener('change', () => handleFiles([...fileInput.files]));
+
+// ── File Handling ─────────────────────────────────────────────────────────────
+function handleFiles(files) {
+  const imgFiles = files.filter(f => f.type.startsWith('image/'));
+  if (!imgFiles.length) { showToast('⚠ No valid image files found.'); return; }
+  if (imgFiles.length > 1000) {
+    showToast('⚠ Max 1,000 images per batch. First 1,000 selected.');
+  }
+  uploadedFiles = imgFiles.slice(0, 1000);
+  renderPreviews();
+  analyzeBtn.disabled = false;
+  clearBtn.disabled = false;
+  showToast(`✅ ${uploadedFiles.length} image${uploadedFiles.length > 1 ? 's' : ''} ready for analysis`);
+}
+
+function renderPreviews() {
+  previewGrid.innerHTML = '';
+  previewCount.textContent = `${uploadedFiles.length} image${uploadedFiles.length > 1 ? 's' : ''} selected`;
+  const showCount = Math.min(uploadedFiles.length, 50);
+  for (let i = 0; i < showCount; i++) {
+    const url = URL.createObjectURL(uploadedFiles[i]);
+    const div = document.createElement('div');
+    div.className = 'preview-thumb';
+    div.innerHTML = `<img src="${url}" loading="lazy" alt=""/>`;
+    previewGrid.appendChild(div);
+  }
+  if (uploadedFiles.length > 50) {
+    const more = document.createElement('div');
+    more.className = 'preview-thumb';
+    more.style.cssText = 'display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--text2);';
+    more.textContent = `+${uploadedFiles.length - 50} more`;
+    previewGrid.appendChild(more);
+  }
+  previewSection.style.display = 'block';
+}
+
+// ── Analysis ──────────────────────────────────────────────────────────────────
+analyzeBtn.addEventListener('click', runAnalysis);
+
+async function runAnalysis() {
+  if (!uploadedFiles.length) return;
+
+  analyzeBtn.disabled = true;
+  clearBtn.disabled = true;
+  progressWrap.classList.add('visible');
+  emptyState.classList.remove('visible');
+  resultsSection.style.display = 'none';
+  summaryGrid.style.display = 'none';
+  analysisResults = [];
+
+  setProgress(5, 'Preparing images…');
+  setStep('step-upload', 'active');
+
+  const base = apiUrlInput.value.trim().replace(/\/$/, '');
+  const fd = new FormData();
+  uploadedFiles.forEach(f => fd.append('files', f, f.name));
+
+  setProgress(15, 'Uploading to server…');
+
+  try {
+    setStep('step-upload', 'done');
+    setStep('step-preprocess', 'active');
+    setProgress(30, 'Preprocessing images…');
+
+    const res = await fetch(`${base}/predict`, { method: 'POST', body: fd });
+
+    setStep('step-preprocess', 'done');
+    setStep('step-inference', 'active');
+    setProgress(60, 'Running crack detection model…');
+
+    if (!res.ok) throw new Error(`Server error ${res.status}`);
+    const data = await res.json();
+
+    setStep('step-inference', 'done');
+    setStep('step-render', 'active');
+    setProgress(85, 'Rendering results…');
+
+    analysisResults = data.results || [];
+    const elapsed = data.processing_time_seconds || '—';
+
+    // Attach object URLs
+    const urlMap = {};
+    uploadedFiles.forEach(f => { urlMap[f.name] = URL.createObjectURL(f); });
+    analysisResults.forEach(r => { r._url = urlMap[r.image_name] || ''; });
+
+    setProgress(100, 'Done!');
+    setStep('step-render', 'done');
+
+    setTimeout(() => {
+      progressWrap.classList.remove('visible');
+      resetSteps();
+      renderSummary(elapsed);
+      renderResults();
+      summaryGrid.style.display = 'grid';
+      resultsSection.style.display = 'block';
+      csvBtn.disabled = false;
+      analyzeBtn.disabled = false;
+      clearBtn.disabled = false;
+      showToast(`✅ Analyzed ${analysisResults.length} images in ${elapsed}s`);
+    }, 600);
+
+  } catch (err) {
+    // Demo / fallback mode — simulate results locally
+    console.warn('API unavailable, using demo mode:', err.message);
+    setStep('step-inference', 'active');
+    setProgress(60, 'Running local heuristic engine…');
+
+    analysisResults = await simulateAnalysis();
+
+    setStep('step-inference', 'done');
+    setStep('step-render', 'active');
+    setProgress(100, 'Done (Demo Mode)!');
+    setTimeout(() => {
+      progressWrap.classList.remove('visible');
+      resetSteps();
+      renderSummary('local');
+      renderResults();
+      summaryGrid.style.display = 'grid';
+      resultsSection.style.display = 'block';
+      csvBtn.disabled = false;
+      analyzeBtn.disabled = false;
+      clearBtn.disabled = false;
+      showToast('⚡ Demo mode: results are simulated. Start backend for real predictions.');
+    }, 600);
+  }
+}
+// ── Local demo simulation ─────────────────────────────────────────────────────
+async function simulateAnalysis() {
+  const types = ['hairline crack', 'surface crack', 'wide crack', 'structural visible crack', 'none'];
+  const severityMap = {
+    'hairline crack': 'Safe',
+    'surface crack': 'Moderate',
+    'wide crack': 'Dangerous',
+    'structural visible crack': 'Dangerous',
+    'none': 'Safe',
+  };
+  const detailMap = {
+    'hairline crack': 'not harmful — micro-fracture, cosmetic only',
+    'surface crack': 'monitor — surface-level, may worsen',
+    'wide crack': 'structural issue — immediate inspection needed',
+    'structural visible crack': 'critical — structural integrity at risk',
+    'none': 'no crack detected',
+  };
+
+  const results = [];
+  let done = 0;
+
+  for (const f of uploadedFiles) {
+    // Simulate processing with slight delay
+    await new Promise(r => setTimeout(r, 2));
+
+    const rand = Math.random();
+    let crack_type;
+    if (rand < 0.35) crack_type = 'none';
+    else if (rand < 0.55) crack_type = 'hairline crack';
+    else if (rand < 0.72) crack_type = 'surface crack';
+    else if (rand < 0.88) crack_type = 'wide crack';
+    else crack_type = 'structural visible crack';
+
+    const crackDetected = crack_type !== 'none';
+    const conf = crackDetected
+      ? +(0.62 + Math.random() * 0.34).toFixed(4)
+      : +(0.75 + Math.random() * 0.23).toFixed(4);
+
+    results.push({
+      image_name: f.name,
+      crack_detected: crackDetected,
+      crack_type,
+      severity: severityMap[crack_type],
+      severity_detail: detailMap[crack_type],
+      confidence: conf,
+      _url: URL.createObjectURL(f),
+    });
+
+    done++;
+    const pct = Math.round(40 + (done / uploadedFiles.length) * 45);
+    setProgress(pct, `Processing ${done}/${uploadedFiles.length}…`);
+  }
+  return results;
+}
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+function renderSummary(elapsed) {
+  const total = analysisResults.length;
+  const cracks = analysisResults.filter(r => r.crack_detected).length;
+  const safe   = analysisResults.filter(r => !r.crack_detected).length;
+  const mod    = analysisResults.filter(r => r.severity === 'Moderate').length;
+  const danger = analysisResults.filter(r => r.severity === 'Dangerous').length;
+
+  document.getElementById('sum-total').textContent  = total;
+  document.getElementById('sum-cracks').textContent = cracks;
+  document.getElementById('sum-cracks-pct').textContent = total ? `${Math.round(cracks/total*100)}% of total` : '—';
+  document.getElementById('sum-safe').textContent   = safe;
+  document.getElementById('sum-mod').textContent    = mod;
+  document.getElementById('sum-danger').textContent = danger;
+  document.getElementById('sum-time').textContent   = typeof elapsed === 'number' ? `${elapsed}s` : elapsed;
+}
+
+// ── Results Rendering ─────────────────────────────────────────────────────────
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeFilter = tab.dataset.filter;
+    renderResults();
+  });
+});
+
+function renderResults() {
+  resultsGrid.innerHTML = '';
+  const filtered = analysisResults.filter(r => {
+    if (r.confidence < confidenceThreshold && r.crack_detected) return false;
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'crack') return r.crack_detected;
+    if (activeFilter === 'safe') return !r.crack_detected;
+    if (activeFilter === 'dangerous') return r.severity === 'Dangerous';
+    if (activeFilter === 'moderate') return r.severity === 'Moderate';
+    return true;
+  });
+
+  if (!filtered.length) {
+    resultsGrid.innerHTML = `<div style="color:var(--text3);font-size:0.85rem;grid-column:1/-1;padding:32px;text-align:center;">No results match this filter.</div>`;
+    return;
+  }
+
+  filtered.forEach((r, i) => {
+    const card = createCard(r, i);
+    resultsGrid.appendChild(card);
+  });
+}
+
+function severityClass(sev, crackDetected) {
+  if (!crackDetected) return 'none';
+  if (sev === 'Safe') return 'safe';
+  if (sev === 'Moderate') return 'moderate';
+  if (sev === 'Dangerous') return 'dangerous';
+  return 'none';
+}
+
+function createCard(r, i) {
+  const sc = severityClass(r.severity, r.crack_detected);
+  const pct = Math.round(r.confidence * 100);
+
+  const card = document.createElement('div');
+  card.className = `img-card ${sc}`;
+  card.style.animationDelay = `${Math.min(i * 30, 500)}ms`;
+
+  const badgeClass = `badge-${sc}`;
+  const badgeLabel = r.crack_detected ? r.severity : 'No Crack';
+
+  card.innerHTML = `
+    <div class="card-img-wrap">
+      ${r._url
+        ? `<img src="${r._url}" alt="${r.image_name}" loading="lazy"/>`
+        : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:0.75rem;">No preview</div>`
+      }
+      <span class="card-badge ${badgeClass}">${badgeLabel}</span>
+    </div>
+    <div class="card-body">
+      <div class="card-name" title="${r.image_name}">${r.image_name}</div>
+      <div class="card-type">${r.crack_detected ? r.crack_type : '✓ No Crack Detected'}</div>
+      <span class="card-severity ${sc}">
+        ${{ none:'🟢', safe:'🟢', moderate:'🟡', dangerous:'🔴' }[sc]}
+        ${r.severity}
+      </span>
+      <div class="conf-label">
+        <span>Confidence</span>
+        <span>${pct}%</span>
+      </div>
+      <div class="conf-bar">
+        <div class="conf-fill ${sc}" style="width:${pct}%"></div>
+      </div>
+      <div class="card-detail">${r.severity_detail || ''}</div>
+    </div>
+  `;
+  return card;
+}
+
+// ── Clear ─────────────────────────────────────────────────────────────────────
+clearBtn.addEventListener('click', () => {
+  uploadedFiles = [];
+  analysisResults = [];
+  fileInput.value = '';
+  previewGrid.innerHTML = '';
+  previewSection.style.display = 'none';
+  resultsSection.style.display = 'none';
+  summaryGrid.style.display = 'none';
+  emptyState.classList.add('visible');
+  analyzeBtn.disabled = true;
+  clearBtn.disabled = true;
+  csvBtn.disabled = true;
+  progressWrap.classList.remove('visible');
+  showToast('🗑 Cleared');
+});
+
+// ── CSV Export ────────────────────────────────────────────────────────────────
+csvBtn.addEventListener('click', downloadCSV);
+
+function downloadCSV() {
+  if (!analysisResults.length) return;
+  const header = 'image_name,crack_detected,crack_type,severity,severity_detail,confidence\n';
+  const rows = analysisResults.map(r =>
+    `"${r.image_name}",${r.crack_detected},"${r.crack_type}","${r.severity}","${r.severity_detail || ''}",${r.confidence}`
+  ).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `crackscan_results_${Date.now()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 CSV downloaded!');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function setProgress(pct, label) {
+  progressBar.style.width = `${pct}%`;
+  progressLabel.textContent = label;
+  progressPct.textContent = `${pct}%`;
+}
+
+function setStep(id, state) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('active', 'done');
+  if (state) el.classList.add(state);
+}
+
+function resetSteps() {
+  ['step-upload','step-preprocess','step-inference','step-render'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active', 'done');
+  });
+}
+
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
