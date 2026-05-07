@@ -2,1039 +2,1048 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CrackScan — AI Structural Analysis</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CrackScan — AI Structural Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-  /* ── Reset & Tokens ───────────────────────────────────────────────────── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  :root {
-    --bg:         #0b0c0f;
-    --bg2:        #111318;
-    --bg3:        #1a1c24;
-    --border:     #2a2d38;
-    --border2:    #3a3d4d;
-    --text:       #e8eaf2;
-    --text2:      #8b8fa8;
-    --text3:      #5a5e72;
-    --accent:     #4f7cff;
-    --accent2:    #7b5ea7;
+:root{
+  --ink:     #0a0b0d;
+  --ink2:    #111318;
+  --ink3:    #181b22;
+  --ink4:    #21252f;
+  --wire:    #2c3040;
+  --wire2:   #3d4256;
+  --fog:     #6b7280;
+  --mist:    #9ca3af;
+  --snow:    #e8eaf2;
+  --white:   #ffffff;
 
-    --safe:       #22c55e;
-    --safe-bg:    rgba(34,197,94,0.10);
-    --safe-br:    rgba(34,197,94,0.30);
+  --neon:    #00e5ff;
+  --neon2:   #7c3aed;
+  --lime:    #a3e635;
+  --amber:   #fbbf24;
+  --rose:    #f43f5e;
+  --safe:    #10b981;
 
-    --mod:        #f59e0b;
-    --mod-bg:     rgba(245,158,11,0.10);
-    --mod-br:     rgba(245,158,11,0.30);
+  --r: 14px; --rs: 8px;
+  --ff-display: 'Bebas Neue', sans-serif;
+  --ff-body:    'Outfit', sans-serif;
+  --ff-mono:    'JetBrains Mono', monospace;
+}
 
-    --danger:     #ef4444;
-    --danger-bg:  rgba(239,68,68,0.10);
-    --danger-br:  rgba(239,68,68,0.30);
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--snow);
+  font-family:var(--ff-body);
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor:default;
+}
 
-    --none-bg:    rgba(79,124,255,0.08);
-    --none-br:    rgba(79,124,255,0.25);
+/* ── ANIMATED GRID BG ───────────────────────────────────────────────────── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(0,229,255,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 90% 100%, rgba(124,58,237,.08) 0%, transparent 55%);
+  pointer-events:none;z-index:0;
+}
 
-    --radius:     12px;
-    --radius-sm:  8px;
-    --font-head:  'Syne', sans-serif;
-    --font-mono:  'DM Mono', monospace;
-  }
+/* ── HEADER ─────────────────────────────────────────────────────────────── */
+header{
+  position:sticky;top:0;z-index:200;
+  border-bottom:1px solid var(--wire);
+  backdrop-filter:blur(24px) saturate(1.4);
+  background:rgba(10,11,13,.82);
+  padding:0 32px;
+  height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-mark{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;position:relative;overflow:hidden;
+  box-shadow:0 0 20px rgba(0,229,255,.35);
+}
+.logo-mark::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
+}
+.logo-text{font-family:var(--ff-display);font-size:1.7rem;letter-spacing:.08em;color:var(--white)}
+.logo-sub{font-size:.65rem;color:var(--fog);letter-spacing:.12em;text-transform:uppercase;margin-top:1px;font-family:var(--ff-mono)}
 
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-mono);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+.header-right{display:flex;align-items:center;gap:12px}
+.status-pill{
+  display:flex;align-items:center;gap:7px;
+  padding:6px 14px;border-radius:100px;
+  background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);
+  font-size:.7rem;color:var(--safe);font-family:var(--ff-mono);
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--safe);
+  animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,.5)}
+  50%{opacity:.6;box-shadow:0 0 0 5px rgba(16,185,129,0)}}
 
-  /* ── Grid noise texture overlay ─────────────────────────────────────────── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      radial-gradient(ellipse 80% 60% at 20% -10%, rgba(79,124,255,0.07) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 110%, rgba(123,94,167,0.07) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── HERO ───────────────────────────────────────────────────────────────── */
+.hero{
+  position:relative;z-index:1;
+  padding:80px 32px 60px;
+  max-width:1400px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:48px;align-items:center;
+}
+.hero-left{}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--ff-mono);font-size:.7rem;
+  color:var(--neon);letter-spacing:.14em;text-transform:uppercase;
+  background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);
+  padding:5px 14px;border-radius:100px;margin-bottom:24px;
+}
+.hero h1{
+  font-family:var(--ff-display);
+  font-size:clamp(3rem,6vw,5.5rem);
+  line-height:.95;letter-spacing:.03em;
+  color:var(--white);margin-bottom:20px;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(90deg,var(--neon),var(--neon2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-desc{color:var(--fog);font-size:1rem;line-height:1.7;max-width:460px;margin-bottom:32px}
 
-  /* ── Layout ──────────────────────────────────────────────────────────────── */
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 1320px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
+.stats-row{display:flex;gap:28px;flex-wrap:wrap}
+.stat-box{
+  text-align:center;
+  padding:16px 20px;
+  background:var(--ink2);border:1px solid var(--wire);
+  border-radius:var(--r);min-width:80px;
+}
+.stat-num{font-family:var(--ff-display);font-size:2rem;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:.65rem;color:var(--fog);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
 
-  /* ── Header ──────────────────────────────────────────────────────────────── */
-  header {
-    border-bottom: 1px solid var(--border);
-    padding: 20px 0;
-    position: sticky; top: 0;
-    backdrop-filter: blur(20px);
-    background: rgba(11,12,15,0.85);
-    z-index: 100;
-  }
-  .header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .logo {
-    display: flex; align-items: center; gap: 12px;
-    font-family: var(--font-head);
-    font-size: 1.4rem; font-weight: 800;
-    letter-spacing: -0.02em;
-  }
-  .logo-icon {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
-  }
-  .logo-sub { font-size: 0.75rem; color: var(--text3); font-weight: 400; margin-top: 2px; }
-  .header-badge {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    padding: 6px 14px;
-    border-radius: 100px;
-    font-size: 0.72rem;
-    color: var(--text2);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .status-dot {
-    display: inline-block; width: 6px; height: 6px;
-    border-radius: 50%; background: var(--safe);
-    margin-right: 7px;
-    animation: pulse-dot 2s infinite;
-  }
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+.hero-right{
+  background:var(--ink2);border:1px solid var(--wire);
+  border-radius:20px;padding:28px;
+  position:relative;overflow:hidden;
+}
+.hero-right::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,229,255,.08),transparent 70%);
+}
+.mini-result{display:flex;align-items:center;gap:12px;
+  padding:12px;border-radius:10px;background:var(--ink3);
+  border:1px solid var(--wire);margin-bottom:10px;
+  animation:slide-in .5s ease both;
+}
+.mini-result:nth-child(2){animation-delay:.1s}
+.mini-result:nth-child(3){animation-delay:.2s}
+.mini-result:nth-child(4){animation-delay:.3s}
+@keyframes slide-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+.mini-thumb{width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;
+  background:var(--wire);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.mini-info{flex:1;min-width:0}
+.mini-name{font-size:.72rem;color:var(--fog);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-type{font-size:.85rem;font-weight:600;color:var(--snow)}
+.mini-badge{font-size:.62rem;padding:2px 9px;border-radius:100px;font-family:var(--ff-mono);
+  font-weight:500;letter-spacing:.04em;flex-shrink:0}
+.mb-safe{background:rgba(16,185,129,.15);color:var(--safe);border:1px solid rgba(16,185,129,.3)}
+.mb-mod{background:rgba(251,191,36,.12);color:var(--amber);border:1px solid rgba(251,191,36,.3)}
+.mb-danger{background:rgba(244,63,94,.12);color:var(--rose);border:1px solid rgba(244,63,94,.3)}
 
-  /* ── Hero ─────────────────────────────────────────────────────────────────── */
-  .hero {
-    padding: 64px 0 48px;
-    text-align: center;
-  }
-  .hero h1 {
-    font-family: var(--font-head);
-    font-size: clamp(2.2rem, 5vw, 3.8rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    margin-bottom: 16px;
-  }
-  .hero h1 span {
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .hero p {
-    color: var(--text2); font-size: 1rem;
-    max-width: 520px; margin: 0 auto 0;
-    line-height: 1.7;
-  }
-  .hero-stats {
-    display: flex; justify-content: center; gap: 40px;
-    margin-top: 36px; flex-wrap: wrap;
-  }
-  .stat { text-align: center; }
-  .stat-val {
-    font-family: var(--font-head);
-    font-size: 1.6rem; font-weight: 800;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .stat-label { font-size: 0.72rem; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+/* ── API BAR ────────────────────────────────────────────────────────────── */
+.api-bar{
+  position:relative;z-index:1;
+  max-width:1400px;margin:0 auto 8px;
+  padding:0 32px;
+}
+.api-inner{
+  display:flex;align-items:center;gap:10px;
+  background:var(--ink2);border:1px solid var(--wire);
+  border-radius:var(--rs);padding:8px 16px;
+}
+.api-inner label{font-size:.68rem;color:var(--fog);font-family:var(--ff-mono);white-space:nowrap;text-transform:uppercase;letter-spacing:.08em}
+.api-inner input{flex:1;background:transparent;border:none;outline:none;
+  color:var(--neon);font-family:var(--ff-mono);font-size:.78rem}
+.api-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-on{background:var(--safe);box-shadow:0 0 8px var(--safe)}
+.dot-off{background:var(--rose)}
+.dot-check{background:var(--amber);animation:pulse 1s infinite}
 
-  /* ── Upload Zone ─────────────────────────────────────────────────────────── */
-  .upload-section { margin-bottom: 40px; }
+/* ── MAIN CONTENT ───────────────────────────────────────────────────────── */
+.main{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 32px 80px}
 
-  .dropzone {
-    border: 2px dashed var(--border2);
-    border-radius: var(--radius);
-    padding: 64px 40px;
-    text-align: center;
-    cursor: pointer;
-    background: var(--bg2);
-    transition: all 0.25s ease;
-    position: relative;
-    overflow: hidden;
-  }
-  .dropzone::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(79,124,255,0.04), transparent);
-    pointer-events: none;
-  }
-  .dropzone.drag-over {
-    border-color: var(--accent);
-    background: rgba(79,124,255,0.05);
-    transform: scale(1.005);
-  }
-  .dz-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.7; }
-  .dz-title {
-    font-family: var(--font-head);
-    font-size: 1.2rem; font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .dz-sub { color: var(--text2); font-size: 0.85rem; line-height: 1.6; }
-  .dz-sub strong { color: var(--accent); }
+/* ── UPLOAD ZONE ────────────────────────────────────────────────────────── */
+.upload-zone{
+  border:2px dashed var(--wire2);border-radius:20px;
+  padding:64px 40px;text-align:center;
+  background:var(--ink2);cursor:pointer;
+  transition:all .25s ease;position:relative;overflow:hidden;
+  margin-bottom:20px;
+}
+.upload-zone::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,229,255,.03),transparent);
+  pointer-events:none;
+}
+.upload-zone.drag{border-color:var(--neon);background:rgba(0,229,255,.04);
+  transform:scale(1.005)}
+.upload-zone:hover{border-color:var(--wire2);background:rgba(255,255,255,.02)}
+#file-input{display:none}
+.dz-icon{font-size:3.5rem;margin-bottom:16px;display:block}
+.dz-title{font-family:var(--ff-display);font-size:1.8rem;letter-spacing:.04em;
+  color:var(--white);margin-bottom:8px}
+.dz-sub{color:var(--fog);font-size:.85rem;line-height:1.7}
+.dz-sub strong{color:var(--neon)}
 
-  #file-input { display: none; }
+/* ── CONTROLS ───────────────────────────────────────────────────────────── */
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 22px;border:none;border-radius:var(--rs);
+  font-family:var(--ff-body);font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .2s;letter-spacing:.02em;
+  text-decoration:none;
+}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-neon{
+  background:linear-gradient(135deg,var(--neon),#0099b3);color:#000;
+  box-shadow:0 0 20px rgba(0,229,255,.25);
+}
+.btn-neon:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 30px rgba(0,229,255,.45)}
+.btn-ghost{background:var(--ink3);border:1px solid var(--wire);color:var(--snow)}
+.btn-ghost:hover:not(:disabled){border-color:var(--wire2);background:var(--ink4)}
+.btn-purple{background:linear-gradient(135deg,var(--neon2),#5b21b6);color:#fff;
+  box-shadow:0 0 18px rgba(124,58,237,.25)}
+.btn-purple:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 28px rgba(124,58,237,.4)}
+.btn-lime{background:linear-gradient(135deg,var(--lime),#65a30d);color:#000}
+.btn-lime:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 20px rgba(163,230,53,.3)}
 
-  /* ── Control Bar ─────────────────────────────────────────────────────────── */
-  .controls {
-    display: flex; gap: 12px; margin-top: 16px;
-    flex-wrap: wrap; align-items: center;
-  }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px;
-    border: none; border-radius: var(--radius-sm);
-    font-family: var(--font-mono); font-size: 0.82rem;
-    cursor: pointer; font-weight: 500;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    letter-spacing: 0.02em;
-  }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-  }
-  .btn-primary:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(79,124,255,0.35);
-  }
-  .btn-secondary {
-    background: var(--bg3); border: 1px solid var(--border);
-    color: var(--text);
-  }
-  .btn-secondary:hover:not(:disabled) {
-    border-color: var(--border2); background: var(--border);
-  }
-  .btn-ghost {
-    background: transparent; border: 1px solid var(--border);
-    color: var(--text2);
-  }
-  .btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.threshold-box{
+  display:flex;align-items:center;gap:10px;
+  background:var(--ink3);border:1px solid var(--wire);
+  padding:8px 16px;border-radius:var(--rs);margin-left:auto;
+}
+.threshold-box label{font-size:.7rem;color:var(--fog);white-space:nowrap;font-family:var(--ff-mono);text-transform:uppercase}
+.threshold-box input[type=range]{width:100px;accent-color:var(--neon)}
+.threshold-box span{font-size:.75rem;color:var(--neon);min-width:34px;font-family:var(--ff-mono)}
 
-  .threshold-wrap {
-    display: flex; align-items: center; gap: 10px;
-    margin-left: auto;
-    background: var(--bg3); border: 1px solid var(--border);
-    padding: 8px 14px; border-radius: var(--radius-sm);
-  }
-  .threshold-wrap label { font-size: 0.78rem; color: var(--text2); white-space: nowrap; }
-  .threshold-wrap input[type=range] {
-    width: 100px; accent-color: var(--accent);
-  }
-  .threshold-val { font-size: 0.78rem; color: var(--accent); min-width: 32px; }
+/* ── PREVIEW ────────────────────────────────────────────────────────────── */
+.preview-wrap{margin-bottom:16px;display:none}
+.preview-count{font-size:.78rem;color:var(--fog);margin-bottom:8px;font-family:var(--ff-mono)}
+.preview-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));
+  gap:6px;max-height:200px;overflow-y:auto;
+}
+.preview-thumb{aspect-ratio:1;border-radius:6px;overflow:hidden;
+  border:1px solid var(--wire);background:var(--ink3)}
+.preview-thumb img{width:100%;height:100%;object-fit:cover}
+.preview-more{display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;color:var(--fog);font-family:var(--ff-mono)}
 
-  /* ── Progress ─────────────────────────────────────────────────────────────── */
-  .progress-wrap {
-    margin: 20px 0;
-    display: none;
-  }
-  .progress-wrap.visible { display: block; }
-  .progress-header {
-    display: flex; justify-content: space-between;
-    font-size: 0.8rem; color: var(--text2);
-    margin-bottom: 8px;
-  }
-  .progress-bar-outer {
-    width: 100%; height: 6px;
-    background: var(--bg3); border-radius: 100px;
-    overflow: hidden;
-  }
-  .progress-bar-inner {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 100px;
-    transition: width 0.3s ease;
-    width: 0%;
-  }
-  .progress-steps {
-    display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
-  }
-  .step-chip {
-    padding: 3px 10px; border-radius: 100px;
-    font-size: 0.7rem; border: 1px solid var(--border);
-    color: var(--text3); background: var(--bg2);
-    transition: all 0.3s;
-  }
-  .step-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,0.1); }
-  .step-chip.done { border-color: var(--safe); color: var(--safe); background: var(--safe-bg); }
+/* ── PROGRESS ───────────────────────────────────────────────────────────── */
+.progress-wrap{display:none;margin-bottom:24px}
+.progress-wrap.show{display:block}
+.prog-header{display:flex;justify-content:space-between;
+  font-size:.75rem;color:var(--fog);font-family:var(--ff-mono);margin-bottom:8px}
+.prog-track{width:100%;height:4px;background:var(--ink3);border-radius:100px;overflow:hidden}
+.prog-fill{height:100%;border-radius:100px;
+  background:linear-gradient(90deg,var(--neon),var(--neon2));
+  transition:width .4s ease;width:0%}
+.prog-steps{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.step{padding:3px 12px;border-radius:100px;font-size:.68rem;font-family:var(--ff-mono);
+  border:1px solid var(--wire);color:var(--fog);background:var(--ink2);transition:all .3s}
+.step.active{border-color:var(--neon);color:var(--neon);background:rgba(0,229,255,.08)}
+.step.done{border-color:var(--safe);color:var(--safe);background:rgba(16,185,129,.08)}
 
-  /* ── Summary Cards ────────────────────────────────────────────────────────── */
-  .summary-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px; margin-bottom: 32px;
-  }
-  .summary-card {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px;
-    transition: border-color 0.2s;
-  }
-  .summary-card:hover { border-color: var(--border2); }
-  .sc-label { font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
-  .sc-value { font-family: var(--font-head); font-size: 2rem; font-weight: 800; }
-  .sc-sub { font-size: 0.72rem; color: var(--text3); margin-top: 4px; }
-  .sc-value.green { color: var(--safe); }
-  .sc-value.yellow { color: var(--mod); }
-  .sc-value.red { color: var(--danger); }
-  .sc-value.blue { color: var(--accent); }
+/* ── SUMMARY ────────────────────────────────────────────────────────────── */
+.summary{display:none;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;margin-bottom:32px}
+.sum-card{
+  background:var(--ink2);border:1px solid var(--wire);
+  border-radius:var(--r);padding:20px 18px;
+  transition:border-color .2s;
+}
+.sum-card:hover{border-color:var(--wire2)}
+.sum-card-label{font-size:.65rem;color:var(--fog);text-transform:uppercase;
+  letter-spacing:.1em;font-family:var(--ff-mono);margin-bottom:8px}
+.sum-card-val{font-family:var(--ff-display);font-size:2.4rem;line-height:1}
+.sum-card-sub{font-size:.68rem;color:var(--fog);margin-top:4px}
+.v-neon{color:var(--neon)}.v-rose{color:var(--rose)}
+.v-safe{color:var(--safe)}.v-amber{color:var(--amber)}
 
-  /* ── Results Grid ─────────────────────────────────────────────────────────── */
-  .results-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
-  }
-  .results-title { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; }
-  .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-  .filter-tab {
-    padding: 5px 12px; border-radius: 100px; font-size: 0.75rem;
-    border: 1px solid var(--border); background: var(--bg2);
-    color: var(--text2); cursor: pointer; transition: all 0.2s;
-    font-family: var(--font-mono);
-  }
-  .filter-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,0.1); }
+/* ── RESULTS HEADER ─────────────────────────────────────────────────────── */
+.results-head{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin-bottom:16px;
+}
+.results-title{font-family:var(--ff-display);font-size:1.6rem;letter-spacing:.04em}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.ftab{
+  padding:5px 14px;border-radius:100px;font-size:.72rem;
+  border:1px solid var(--wire);background:var(--ink2);
+  color:var(--fog);cursor:pointer;transition:all .2s;font-family:var(--ff-mono);
+}
+.ftab.on{border-color:var(--neon);color:var(--neon);background:rgba(0,229,255,.08)}
 
-  .results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
-  }
+/* ── RESULTS GRID ───────────────────────────────────────────────────────── */
+.results-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:16px;
+}
 
-  /* ── Image Card ───────────────────────────────────────────────────────────── */
-  .img-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    animation: card-in 0.35s ease both;
-  }
-  @keyframes card-in {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .img-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+/* ── IMAGE CARD ─────────────────────────────────────────────────────────── */
+.icard{
+  background:var(--ink2);border-radius:16px;
+  overflow:hidden;transition:transform .25s,box-shadow .25s;
+  border:1px solid var(--wire);
+  animation:card-pop .4s ease both;
+}
+@keyframes card-pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.icard:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,.5)}
+.icard.c-safe{border-color:rgba(16,185,129,.3)}
+.icard.c-moderate{border-color:rgba(251,191,36,.3)}
+.icard.c-dangerous{border-color:rgba(244,63,94,.35)}
+.icard.c-none{border-color:rgba(0,229,255,.2)}
 
-  .img-card.safe   { border-color: var(--safe-br); }
-  .img-card.moderate { border-color: var(--mod-br); }
-  .img-card.dangerous { border-color: var(--danger-br); }
-  .img-card.none  { border-color: var(--none-br); }
+.card-img{position:relative;width:100%;padding-top:68%;overflow:hidden;background:var(--ink3)}
+.card-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .35s}
+.icard:hover .card-img img{transform:scale(1.06)}
+.card-badge{
+  position:absolute;top:9px;right:9px;
+  padding:3px 11px;border-radius:100px;
+  font-size:.62rem;font-weight:700;font-family:var(--ff-mono);
+  letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(8px);
+}
+.cb-safe{background:rgba(16,185,129,.85);color:#000}
+.cb-mod{background:rgba(251,191,36,.9);color:#000}
+.cb-danger{background:rgba(244,63,94,.9);color:#fff}
+.cb-none{background:rgba(0,229,255,.85);color:#000}
 
-  .card-img-wrap {
-    position: relative; width: 100%; padding-top: 70%;
-    overflow: hidden;
-  }
-  .card-img-wrap img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s;
-  }
-  .img-card:hover .card-img-wrap img { transform: scale(1.04); }
+/* Scan line overlay */
+.card-img::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px);
+  pointer-events:none;
+}
 
-  .card-badge {
-    position: absolute; top: 8px; right: 8px;
-    padding: 3px 10px; border-radius: 100px;
-    font-size: 0.65rem; font-weight: 600;
-    backdrop-filter: blur(8px);
-    letter-spacing: 0.04em; text-transform: uppercase;
-  }
-  .badge-safe     { background: rgba(34,197,94,0.85);  color: #000; }
-  .badge-moderate { background: rgba(245,158,11,0.85); color: #000; }
-  .badge-dangerous{ background: rgba(239,68,68,0.85);  color: #fff; }
-  .badge-none     { background: rgba(79,124,255,0.85); color: #fff; }
+.card-body{padding:16px}
+.card-name{font-size:.7rem;color:var(--fog);font-family:var(--ff-mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px}
+.card-type{font-family:var(--ff-display);font-size:1.15rem;letter-spacing:.04em;
+  text-transform:uppercase;margin-bottom:8px;color:var(--white)}
+.card-sev{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.7rem;padding:3px 11px;border-radius:100px;
+  border:1px solid;margin-bottom:12px;font-family:var(--ff-mono);font-weight:500;
+}
+.cs-safe{color:var(--safe);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.08)}
+.cs-mod{color:var(--amber);border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08)}
+.cs-danger{color:var(--rose);border-color:rgba(244,63,94,.3);background:rgba(244,63,94,.08)}
+.cs-none{color:var(--neon);border-color:rgba(0,229,255,.3);background:rgba(0,229,255,.08)}
 
-  .card-body { padding: 14px; }
-  .card-name {
-    font-size: 0.78rem; color: var(--text2);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-bottom: 10px;
-  }
-  .card-type {
-    font-family: var(--font-head); font-size: 0.88rem; font-weight: 700;
-    margin-bottom: 6px; text-transform: capitalize;
-  }
-  .card-severity {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 0.72rem; padding: 3px 10px; border-radius: 100px;
-    border: 1px solid; margin-bottom: 12px;
-  }
-  .card-severity.safe     { color: var(--safe);   border-color: var(--safe-br);   background: var(--safe-bg); }
-  .card-severity.moderate { color: var(--mod);    border-color: var(--mod-br);    background: var(--mod-bg); }
-  .card-severity.dangerous{ color: var(--danger); border-color: var(--danger-br); background: var(--danger-bg); }
-  .card-severity.none     { color: var(--accent); border-color: var(--none-br);   background: var(--none-bg); }
+.conf-row{display:flex;justify-content:space-between;
+  font-size:.68rem;color:var(--fog);font-family:var(--ff-mono);margin-bottom:5px}
+.conf-track{width:100%;height:3px;background:var(--ink3);border-radius:100px;overflow:hidden;margin-bottom:8px}
+.conf-fill{height:100%;border-radius:100px;transition:width .7s ease}
+.cf-safe{background:var(--safe)}.cf-mod{background:var(--amber)}
+.cf-danger{background:var(--rose)}.cf-none{background:var(--neon)}
 
-  /* Confidence bar */
-  .conf-label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text3); margin-bottom: 4px; }
-  .conf-bar { width: 100%; height: 4px; background: var(--bg3); border-radius: 100px; overflow: hidden; }
-  .conf-fill { height: 100%; border-radius: 100px; transition: width 0.6s ease; }
-  .conf-fill.safe     { background: var(--safe); }
-  .conf-fill.moderate { background: var(--mod); }
-  .conf-fill.dangerous{ background: var(--danger); }
-  .conf-fill.none     { background: var(--accent); }
+.card-detail{font-size:.68rem;color:var(--fog);line-height:1.5;margin-bottom:12px}
 
-  .card-detail { font-size: 0.68rem; color: var(--text3); margin-top: 8px; line-height: 1.5; }
+/* Share row on card */
+.card-share{display:flex;gap:6px}
+.share-btn{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+  padding:6px 8px;border-radius:6px;font-size:.65rem;font-weight:600;
+  cursor:pointer;border:1px solid var(--wire);background:var(--ink3);
+  color:var(--mist);transition:all .2s;font-family:var(--ff-body);
+}
+.share-btn:hover{transform:scale(1.05)}
+.sb-wa{border-color:rgba(37,211,102,.3);color:#25d366}
+.sb-wa:hover{background:rgba(37,211,102,.1)}
+.sb-mail{border-color:rgba(0,229,255,.3);color:var(--neon)}
+.sb-mail:hover{background:rgba(0,229,255,.1)}
+.sb-copy{border-color:rgba(163,230,53,.3);color:var(--lime)}
+.sb-copy:hover{background:rgba(163,230,53,.1)}
 
-  /* ── Empty / Loading states ───────────────────────────────────────────────── */
-  .empty-state {
-    text-align: center; padding: 80px 20px;
-    color: var(--text3); display: none;
-  }
-  .empty-state.visible { display: block; }
-  .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
-  .empty-title { font-family: var(--font-head); font-size: 1.1rem; margin-bottom: 8px; color: var(--text2); }
+/* ── SHARE MODAL ────────────────────────────────────────────────────────── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.8);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--ink2);border:1px solid var(--wire2);
+  border-radius:20px;padding:32px;width:90%;max-width:480px;
+  position:relative;animation:modal-in .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modal-in{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.modal h2{font-family:var(--ff-display);font-size:1.8rem;letter-spacing:.04em;margin-bottom:6px}
+.modal-sub{font-size:.82rem;color:var(--fog);margin-bottom:24px;line-height:1.6}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--ink3);border:1px solid var(--wire);
+  color:var(--fog);cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.modal-close:hover{color:var(--snow);border-color:var(--wire2)}
 
-  /* ── Toast ────────────────────────────────────────────────────────────────── */
-  #toast {
-    position: fixed; bottom: 28px; right: 28px; z-index: 999;
-    background: var(--bg3); border: 1px solid var(--border2);
-    padding: 12px 20px; border-radius: var(--radius-sm);
-    font-size: 0.82rem; color: var(--text);
-    transform: translateY(80px); opacity: 0;
-    transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
-    pointer-events: none; max-width: 320px;
-  }
-  #toast.show { transform: translateY(0); opacity: 1; }
+.share-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.share-option{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:20px 16px;border-radius:12px;
+  border:1px solid var(--wire);background:var(--ink3);
+  cursor:pointer;transition:all .2s;text-align:center;
+}
+.share-option:hover{transform:translateY(-2px);border-color:var(--wire2)}
+.so-icon{font-size:2rem}
+.so-label{font-size:.8rem;font-weight:600;color:var(--snow)}
+.so-sub{font-size:.68rem;color:var(--fog)}
+.so-wa:hover{border-color:rgba(37,211,102,.4);background:rgba(37,211,102,.06)}
+.so-mail:hover{border-color:rgba(0,229,255,.4);background:rgba(0,229,255,.06)}
+.so-copy:hover{border-color:rgba(163,230,53,.4);background:rgba(163,230,53,.06)}
+.so-csv:hover{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.06)}
 
-  /* ── Preview thumbnails (before analysis) ─────────────────────────────────── */
-  .preview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 8px; margin: 16px 0;
-    max-height: 240px; overflow-y: auto;
-  }
-  .preview-thumb {
-    aspect-ratio: 1; border-radius: 6px; overflow: hidden;
-    border: 1px solid var(--border);
-    position: relative; background: var(--bg3);
-  }
-  .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .preview-count {
-    font-size: 0.78rem; color: var(--text2);
-    margin-bottom: 6px;
-  }
+.share-preview{
+  background:var(--ink3);border:1px solid var(--wire);
+  border-radius:10px;padding:14px;
+  font-size:.72rem;color:var(--fog);font-family:var(--ff-mono);
+  line-height:1.8;max-height:140px;overflow-y:auto;
+}
 
-  /* ── API URL input ─────────────────────────────────────────────────────────── */
-  .api-config {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 8px 14px;
-    margin-bottom: 16px;
-  }
-  .api-config label { font-size: 0.72rem; color: var(--text3); white-space: nowrap; }
-  .api-config input {
-    flex: 1; background: transparent; border: none; outline: none;
-    color: var(--text); font-family: var(--font-mono); font-size: 0.8rem;
-  }
-  .api-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .api-dot.online  { background: var(--safe); }
-  .api-dot.offline { background: var(--danger); }
-  .api-dot.checking { background: var(--mod); animation: pulse-dot 1s infinite; }
+/* ── TOAST ──────────────────────────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:28px;right:28px;z-index:999;
+  background:var(--ink3);border:1px solid var(--wire2);
+  padding:12px 20px;border-radius:var(--rs);
+  font-size:.8rem;color:var(--snow);
+  transform:translateY(80px);opacity:0;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;max-width:320px;
+  display:flex;align-items:center;gap:8px;
+}
+#toast.show{transform:translateY(0);opacity:1}
 
-  /* ── Scrollbar ───────────────────────────────────────────────────────────── */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 100px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+/* ── EMPTY ──────────────────────────────────────────────────────────────── */
+.empty{text-align:center;padding:80px 20px;color:var(--fog)}
+.empty-icon{font-size:3.5rem;margin-bottom:16px;opacity:.4}
+.empty-title{font-family:var(--ff-display);font-size:1.4rem;letter-spacing:.04em;
+  color:var(--mist);margin-bottom:8px}
 
-  /* ── Responsive ──────────────────────────────────────────────────────────── */
-  @media (max-width: 600px) {
-    .hero { padding: 36px 0 28px; }
-    .hero-stats { gap: 24px; }
-    .controls { gap: 8px; }
-    .threshold-wrap { margin-left: 0; width: 100%; }
-  }
+/* ── SCROLLBAR ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--wire2);border-radius:100px}
+
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;padding:40px 16px 32px}
+  .hero-right{display:none}
+  .main,.api-bar{padding-left:16px;padding-right:16px}
+  header{padding:0 16px}
+  .stats-row{gap:12px}
+}
 </style>
 </head>
 <body>
 
-<!-- Header -->
+<!-- HEADER -->
 <header>
-  <div class="container">
-    <div class="header-inner">
-      <div class="logo">
-        <div class="logo-icon">🔍</div>
-        <div>
-          CrackScan
-          <div class="logo-sub">AI Structural Analysis Platform</div>
-        </div>
-      </div>
-      <div class="header-badge">
-        <span class="status-dot" id="model-dot"></span>
-        <span id="model-status">Engine Ready</span>
-      </div>
+  <div class="logo">
+    <div class="logo-mark">🔍</div>
+    <div>
+      <div class="logo-text">CrackScan</div>
+      <div class="logo-sub">AI Structural Intelligence</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-pill">
+      <span class="pulse" id="status-dot"></span>
+      <span id="status-text">Checking...</span>
     </div>
   </div>
 </header>
 
-<!-- Main -->
-<main>
-<div class="container">
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">⚡ Powered by Computer Vision</div>
+    <h1>DETECT<br/><em>STRUCTURAL</em><br/>CRACKS</h1>
+    <p class="hero-desc">Upload up to 1,000 images and get instant AI-powered crack detection with type classification, severity rating, and confidence scores.</p>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num">1K</div><div class="stat-label">Max Images</div></div>
+      <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Crack Types</div></div>
+      <div class="stat-box"><div class="stat-num">3</div><div class="stat-label">Severity Levels</div></div>
+      <div class="stat-box"><div class="stat-num">CV</div><div class="stat-label">AI Engine</div></div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div style="font-size:.68rem;color:var(--fog);font-family:var(--ff-mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px">Live Analysis Preview</div>
+    <div class="mini-result">
+      <div class="mini-thumb">🧱</div>
+      <div class="mini-info"><div class="mini-name">wall_section_01.jpg</div><div class="mini-type">Structural Visible Crack</div></div>
+      <span class="mini-badge mb-danger">Dangerous</span>
+    </div>
+    <div class="mini-result">
+      <div class="mini-thumb">🏗️</div>
+      <div class="mini-info"><div class="mini-name">column_base.jpg</div><div class="mini-type">Surface Crack</div></div>
+      <span class="mini-badge mb-mod">Moderate</span>
+    </div>
+    <div class="mini-result">
+      <div class="mini-thumb">🪨</div>
+      <div class="mini-info"><div class="mini-name">foundation_01.jpg</div><div class="mini-type">Hairline Crack</div></div>
+      <span class="mini-badge mb-safe">Safe</span>
+    </div>
+    <div class="mini-result">
+      <div class="mini-thumb">🏢</div>
+      <div class="mini-info"><div class="mini-name">exterior_scan.jpg</div><div class="mini-type">No Crack Detected</div></div>
+      <span class="mini-badge mb-safe">Safe</span>
+    </div>
+  </div>
+</section>
 
-  <!-- Hero -->
-  <div class="hero">
-    <h1>Detect Structural Cracks<br/><span>Instantly at Scale</span></h1>
-    <p>Upload up to 1,000 images. Get AI-powered crack detection, type classification, and severity ratings in seconds.</p>
-    <div class="hero-stats">
-      <div class="stat"><div class="stat-val">1000</div><div class="stat-label">Max Images</div></div>
-      <div class="stat"><div class="stat-val">4</div><div class="stat-label">Crack Types</div></div>
-      <div class="stat"><div class="stat-val">3</div><div class="stat-label">Severity Levels</div></div>
-      <div class="stat"><div class="stat-val">CV+AI</div><div class="stat-label">Engine</div></div>
+<!-- API BAR -->
+<div class="api-bar">
+  <div class="api-inner">
+    <label>API</label>
+    <input type="text" id="api-url" value="https://crackscan-api.onrender.com" placeholder="https://your-api.onrender.com"/>
+    <div class="api-dot dot-check" id="api-dot"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- Upload -->
+  <div class="upload-zone" id="dropzone">
+    <input type="file" id="file-input" multiple accept="image/*"/>
+    <span class="dz-icon">📡</span>
+    <div class="dz-title">Drop Images to Scan</div>
+    <div class="dz-sub">Drag & drop your structural images here or click to browse<br/><strong>Up to 1,000 images</strong> · JPG, PNG, WEBP, BMP supported</div>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-wrap" id="preview-wrap">
+    <div class="preview-count" id="preview-count"></div>
+    <div class="preview-grid" id="preview-grid"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-neon" id="analyze-btn" disabled>⚡ Analyze Images</button>
+    <button class="btn btn-ghost" id="clear-btn" disabled>🗑 Clear</button>
+    <button class="btn btn-lime" id="csv-btn" disabled>⬇ Download CSV</button>
+    <button class="btn btn-purple" id="share-all-btn" disabled>📤 Share Results</button>
+    <div class="threshold-box">
+      <label>Threshold</label>
+      <input type="range" id="threshold" min="0" max="100" value="50"/>
+      <span id="thresh-val">50%</span>
     </div>
   </div>
 
-  <!-- API Config -->
-  <div class="api-config">
-    <label>API URL</label>
-    <input type="text" id="api-url" value="https://crackscan-api.onrender.com" placeholder=""/>
-    <div class="api-dot checking" id="api-dot"></div>
-  </div>
-
-  <!-- Upload Section -->
-  <div class="upload-section">
-    <div class="dropzone" id="dropzone">
-      <input type="file" id="file-input" multiple accept="image/*"/>
-      <div class="dz-icon">📂</div>
-      <div class="dz-title">Drop images here or click to browse</div>
-      <div class="dz-sub">
-        Supports JPG, PNG, WEBP, BMP · <strong>Up to 1,000 images</strong> at once<br/>
-        Drag & drop your entire folder of structural images
-      </div>
+  <!-- Progress -->
+  <div class="progress-wrap" id="prog-wrap">
+    <div class="prog-header">
+      <span id="prog-label">Preparing…</span>
+      <span id="prog-pct">0%</span>
     </div>
-
-    <!-- Preview strip -->
-    <div id="preview-section" style="display:none;">
-      <div class="preview-count" id="preview-count"></div>
-      <div class="preview-grid" id="preview-grid"></div>
-    </div>
-
-    <!-- Controls -->
-    <div class="controls">
-      <button class="btn btn-primary" id="analyze-btn" disabled>
-        ⚡ Analyze Images
-      </button>
-      <button class="btn btn-secondary" id="clear-btn" disabled>
-        🗑 Clear
-      </button>
-      <button class="btn btn-ghost" id="csv-btn" disabled>
-        ⬇ Download CSV
-      </button>
-
-      <div class="threshold-wrap">
-        <label>Confidence Threshold</label>
-        <input type="range" id="threshold" min="0" max="100" value="50"/>
-        <span class="threshold-val" id="threshold-val">50%</span>
-      </div>
-    </div>
-
-    <!-- Progress -->
-    <div class="progress-wrap" id="progress-wrap">
-      <div class="progress-header">
-        <span id="progress-label">Uploading images…</span>
-        <span id="progress-pct">0%</span>
-      </div>
-      <div class="progress-bar-outer">
-        <div class="progress-bar-inner" id="progress-bar"></div>
-      </div>
-      <div class="progress-steps">
-        <div class="step-chip" id="step-upload">📤 Uploading</div>
-        <div class="step-chip" id="step-preprocess">🔧 Preprocessing</div>
-        <div class="step-chip" id="step-inference">🧠 Running Model</div>
-        <div class="step-chip" id="step-render">✨ Rendering</div>
-      </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog-steps">
+      <div class="step" id="s1">📤 Upload</div>
+      <div class="step" id="s2">🔧 Preprocess</div>
+      <div class="step" id="s3">🧠 Inference</div>
+      <div class="step" id="s4">✨ Render</div>
     </div>
   </div>
 
-  <!-- Summary Row -->
-  <div class="summary-grid" id="summary-grid" style="display:none;">
-    <div class="summary-card">
-      <div class="sc-label">Total Analyzed</div>
-      <div class="sc-value blue" id="sum-total">0</div>
-      <div class="sc-sub">images processed</div>
-    </div>
-    <div class="summary-card">
-      <div class="sc-label">Cracks Detected</div>
-      <div class="sc-value red" id="sum-cracks">0</div>
-      <div class="sc-sub" id="sum-cracks-pct">— of total</div>
-    </div>
-    <div class="summary-card">
-      <div class="sc-label">Safe / No Crack</div>
-      <div class="sc-value green" id="sum-safe">0</div>
-      <div class="sc-sub">no action needed</div>
-    </div>
-    <div class="summary-card">
-      <div class="sc-label">Moderate</div>
-      <div class="sc-value yellow" id="sum-mod">0</div>
-      <div class="sc-sub">monitor & re-inspect</div>
-    </div>
-    <div class="summary-card">
-      <div class="sc-label">Dangerous</div>
-      <div class="sc-value red" id="sum-danger">0</div>
-      <div class="sc-sub">immediate action</div>
-    </div>
-    <div class="summary-card">
-      <div class="sc-label">Processing Time</div>
-      <div class="sc-value blue" id="sum-time">—</div>
-      <div class="sc-sub">total seconds</div>
-    </div>
+  <!-- Summary -->
+  <div class="summary" id="summary" style="display:none;">
+    <div class="sum-card"><div class="sum-card-label">Total Analyzed</div><div class="sum-card-val v-neon" id="s-total">0</div><div class="sum-card-sub">images processed</div></div>
+    <div class="sum-card"><div class="sum-card-label">Cracks Found</div><div class="sum-card-val v-rose" id="s-cracks">0</div><div class="sum-card-sub" id="s-pct">— of total</div></div>
+    <div class="sum-card"><div class="sum-card-label">Safe / Clear</div><div class="sum-card-val v-safe" id="s-safe">0</div><div class="sum-card-sub">no action needed</div></div>
+    <div class="sum-card"><div class="sum-card-label">Moderate</div><div class="sum-card-val v-amber" id="s-mod">0</div><div class="sum-card-sub">monitor closely</div></div>
+    <div class="sum-card"><div class="sum-card-label">Dangerous</div><div class="sum-card-val v-rose" id="s-danger">0</div><div class="sum-card-sub">immediate action</div></div>
+    <div class="sum-card"><div class="sum-card-label">Process Time</div><div class="sum-card-val v-neon" id="s-time">—</div><div class="sum-card-sub">seconds total</div></div>
   </div>
 
   <!-- Results -->
-  <div id="results-section" style="display:none;">
-    <div class="results-header">
+  <div id="results-sec" style="display:none;">
+    <div class="results-head">
       <div class="results-title">Analysis Results</div>
-      <div class="filter-tabs">
-        <div class="filter-tab active" data-filter="all">All</div>
-        <div class="filter-tab" data-filter="crack">Cracked</div>
-        <div class="filter-tab" data-filter="safe">Safe</div>
-        <div class="filter-tab" data-filter="dangerous">Dangerous</div>
-        <div class="filter-tab" data-filter="moderate">Moderate</div>
+      <div class="filter-row">
+        <div class="ftab on" data-f="all">All</div>
+        <div class="ftab" data-f="crack">Cracked</div>
+        <div class="ftab" data-f="safe">Safe</div>
+        <div class="ftab" data-f="dangerous">Dangerous</div>
+        <div class="ftab" data-f="moderate">Moderate</div>
       </div>
     </div>
     <div class="results-grid" id="results-grid"></div>
   </div>
 
-  <!-- Empty state -->
-  <div class="empty-state visible" id="empty-state">
+  <!-- Empty -->
+  <div class="empty" id="empty">
     <div class="empty-icon">🏗️</div>
-    <div class="empty-title">No images analyzed yet</div>
-    <div>Upload structural images above to begin crack detection analysis.</div>
+    <div class="empty-title">No Images Analyzed Yet</div>
+    <div>Upload structural images above to begin crack detection</div>
   </div>
 
 </div>
-</main>
 
-<!-- Toast -->
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <h2>SHARE RESULTS</h2>
+    <div class="modal-sub" id="modal-sub">Choose how to share your analysis results</div>
+    <div class="share-options">
+      <div class="share-option so-wa" onclick="shareVia('whatsapp')">
+        <span class="so-icon">💬</span>
+        <span class="so-label">WhatsApp</span>
+        <span class="so-sub">Share summary</span>
+      </div>
+      <div class="share-option so-mail" onclick="shareVia('email')">
+        <span class="so-icon">📧</span>
+        <span class="so-label">Email</span>
+        <span class="so-sub">Full report</span>
+      </div>
+      <div class="share-option so-copy" onclick="shareVia('copy')">
+        <span class="so-icon">📋</span>
+        <span class="so-label">Copy Text</span>
+        <span class="so-sub">Clipboard</span>
+      </div>
+      <div class="share-option so-csv" onclick="downloadCSV()">
+        <span class="so-icon">📊</span>
+        <span class="so-label">CSV File</span>
+        <span class="so-sub">Spreadsheet</span>
+      </div>
+    </div>
+    <div class="share-preview" id="share-preview"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
-/* ──────────────────────────────────────────────────────────────────────────── *
- *  CrackScan — Frontend Logic                                                  *
- * ──────────────────────────────────────────────────────────────────────────── */
-
 // ── State ─────────────────────────────────────────────────────────────────────
-let uploadedFiles = [];
-let analysisResults = [];
-let activeFilter = 'all';
-let confidenceThreshold = 0.50;
+let files=[], results=[], filter='all', threshold=0.50;
+let shareTarget=null; // single card or null=all
 
-// ── DOM refs ──────────────────────────────────────────────────────────────────
-const dropzone       = document.getElementById('dropzone');
-const fileInput      = document.getElementById('file-input');
-const analyzeBtn     = document.getElementById('analyze-btn');
-const clearBtn       = document.getElementById('clear-btn');
-const csvBtn         = document.getElementById('csv-btn');
-const previewSection = document.getElementById('preview-section');
-const previewGrid    = document.getElementById('preview-grid');
-const previewCount   = document.getElementById('preview-count');
-const progressWrap   = document.getElementById('progress-wrap');
-const progressBar    = document.getElementById('progress-bar');
-const progressLabel  = document.getElementById('progress-label');
-const progressPct    = document.getElementById('progress-pct');
-const resultsSection = document.getElementById('results-section');
-const resultsGrid    = document.getElementById('results-grid');
-const summaryGrid    = document.getElementById('summary-grid');
-const emptyState     = document.getElementById('empty-state');
-const thresholdInput = document.getElementById('threshold');
-const thresholdVal   = document.getElementById('threshold-val');
-const apiUrlInput    = document.getElementById('api-url');
-const apiDot         = document.getElementById('api-dot');
+// ── DOM ───────────────────────────────────────────────────────────────────────
+const dz        = document.getElementById('dropzone');
+const fi        = document.getElementById('file-input');
+const aBtn      = document.getElementById('analyze-btn');
+const cBtn      = document.getElementById('clear-btn');
+const csvBtn    = document.getElementById('csv-btn');
+const shareBtn  = document.getElementById('share-all-btn');
+const thrInput  = document.getElementById('threshold');
+const thrVal    = document.getElementById('thresh-val');
+const apiInput  = document.getElementById('api-url');
+const apiDot    = document.getElementById('api-dot');
+const progWrap  = document.getElementById('prog-wrap');
+const progFill  = document.getElementById('prog-fill');
+const progLabel = document.getElementById('prog-label');
+const progPct   = document.getElementById('prog-pct');
+const grid      = document.getElementById('results-grid');
+const summary   = document.getElementById('summary');
+const resultsSec= document.getElementById('results-sec');
+const emptyEl   = document.getElementById('empty');
+const modal     = document.getElementById('modal');
+const sharePrev = document.getElementById('share-preview');
 
-// ── API health check ───────────────────────────────────────────────────────────
-async function checkApiHealth() {
-  const base = apiUrlInput.value.trim().replace(/\/$/, '');
-  try {
-    const r = await fetch(`${base}/health`, { signal: AbortSignal.timeout(3000) });
-    if (r.ok) {
-      apiDot.className = 'api-dot online';
-      document.getElementById('model-status').textContent = 'Model Online';
-    } else {
-      apiDot.className = 'api-dot offline';
-      document.getElementById('model-status').textContent = 'API Error';
-    }
-  } catch {
-    apiDot.className = 'api-dot offline';
-    document.getElementById('model-status').textContent = 'Offline — Demo Mode';
+// ── Health check ──────────────────────────────────────────────────────────────
+async function checkHealth(){
+  const base=apiInput.value.trim().replace(/\/$/,'');
+  try{
+    const r=await fetch(`${base}/health`,{signal:AbortSignal.timeout(4000)});
+    if(r.ok){
+      apiDot.className='api-dot dot-on';
+      document.getElementById('status-dot').style.background='var(--safe)';
+      document.getElementById('status-text').textContent='Model Online';
+    }else throw new Error();
+  }catch{
+    apiDot.className='api-dot dot-off';
+    document.getElementById('status-text').textContent='Demo Mode';
   }
 }
-checkApiHealth();
-setInterval(checkApiHealth, 10000);
-apiUrlInput.addEventListener('change', checkApiHealth);
+checkHealth();
+setInterval(checkHealth,12000);
+setInterval(()=>fetch(apiInput.value.trim().replace(/\/$/,'')+'/health').catch(()=>{}),600000);
+apiInput.addEventListener('change',checkHealth);
 
 // ── Threshold ─────────────────────────────────────────────────────────────────
-thresholdInput.addEventListener('input', () => {
-  confidenceThreshold = thresholdInput.value / 100;
-  thresholdVal.textContent = `${thresholdInput.value}%`;
-  if (analysisResults.length) renderResults();
+thrInput.addEventListener('input',()=>{
+  threshold=thrInput.value/100;
+  thrVal.textContent=`${thrInput.value}%`;
+  if(results.length) renderResults();
 });
 
 // ── Drag & Drop ───────────────────────────────────────────────────────────────
-dropzone.addEventListener('click', () => fileInput.click());
-dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
-dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
-dropzone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropzone.classList.remove('drag-over');
-  handleFiles([...e.dataTransfer.files]);
-});
-fileInput.addEventListener('change', () => handleFiles([...fileInput.files]));
+dz.addEventListener('click',()=>fi.click());
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFiles([...e.dataTransfer.files])});
+fi.addEventListener('change',()=>handleFiles([...fi.files]));
 
-// ── File Handling ─────────────────────────────────────────────────────────────
-function handleFiles(files) {
-  const imgFiles = files.filter(f => f.type.startsWith('image/'));
-  if (!imgFiles.length) { showToast('⚠ No valid image files found.'); return; }
-  if (imgFiles.length > 1000) {
-    showToast('⚠ Max 1,000 images per batch. First 1,000 selected.');
-  }
-  uploadedFiles = imgFiles.slice(0, 1000);
+function handleFiles(f){
+  const imgs=f.filter(x=>x.type.startsWith('image/'));
+  if(!imgs.length){toast('⚠ No image files found');return}
+  files=imgs.slice(0,1000);
   renderPreviews();
-  analyzeBtn.disabled = false;
-  clearBtn.disabled = false;
-  showToast(`✅ ${uploadedFiles.length} image${uploadedFiles.length > 1 ? 's' : ''} ready for analysis`);
+  aBtn.disabled=false; cBtn.disabled=false;
+  toast(`✅ ${files.length} image${files.length>1?'s':''} ready`);
 }
 
-function renderPreviews() {
-  previewGrid.innerHTML = '';
-  previewCount.textContent = `${uploadedFiles.length} image${uploadedFiles.length > 1 ? 's' : ''} selected`;
-  const showCount = Math.min(uploadedFiles.length, 50);
-  for (let i = 0; i < showCount; i++) {
-    const url = URL.createObjectURL(uploadedFiles[i]);
-    const div = document.createElement('div');
-    div.className = 'preview-thumb';
-    div.innerHTML = `<img src="${url}" loading="lazy" alt=""/>`;
-    previewGrid.appendChild(div);
+function renderPreviews(){
+  const pg=document.getElementById('preview-grid');
+  const pw=document.getElementById('preview-wrap');
+  pg.innerHTML='';
+  document.getElementById('preview-count').textContent=`${files.length} image${files.length>1?'s':''} selected`;
+  const show=Math.min(files.length,60);
+  for(let i=0;i<show;i++){
+    const d=document.createElement('div');d.className='preview-thumb';
+    const im=document.createElement('img');im.src=URL.createObjectURL(files[i]);im.loading='lazy';
+    d.appendChild(im);pg.appendChild(d);
   }
-  if (uploadedFiles.length > 50) {
-    const more = document.createElement('div');
-    more.className = 'preview-thumb';
-    more.style.cssText = 'display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--text2);';
-    more.textContent = `+${uploadedFiles.length - 50} more`;
-    previewGrid.appendChild(more);
+  if(files.length>60){
+    const d=document.createElement('div');
+    d.className='preview-thumb preview-more';
+    d.textContent=`+${files.length-60}`;
+    pg.appendChild(d);
   }
-  previewSection.style.display = 'block';
+  pw.style.display='block';
 }
 
-// ── Analysis ──────────────────────────────────────────────────────────────────
-analyzeBtn.addEventListener('click', runAnalysis);
+// ── Analyze ───────────────────────────────────────────────────────────────────
+aBtn.addEventListener('click',analyze);
 
-async function runAnalysis() {
-  if (!uploadedFiles.length) return;
+async function analyze(){
+  if(!files.length)return;
+  aBtn.disabled=true; cBtn.disabled=true;
+  progWrap.classList.add('show');
+  emptyEl.style.display='none';
+  resultsSec.style.display='none';
+  summary.style.display='none';
+  results=[];
 
-  analyzeBtn.disabled = true;
-  clearBtn.disabled = true;
-  progressWrap.classList.add('visible');
-  emptyState.classList.remove('visible');
-  resultsSection.style.display = 'none';
-  summaryGrid.style.display = 'none';
-  analysisResults = [];
+  setProgress(5,'Preparing images…'); setStep('s1','active');
 
-  setProgress(5, 'Preparing images…');
-  setStep('step-upload', 'active');
+  const base=apiInput.value.trim().replace(/\/$/,'');
+  const fd=new FormData();
+  files.forEach(f=>fd.append('files',f,f.name));
+  setProgress(15,'Uploading…');
 
-  const base = apiUrlInput.value.trim().replace(/\/$/, '');
-  const fd = new FormData();
-  uploadedFiles.forEach(f => fd.append('files', f, f.name));
-
-  setProgress(15, 'Uploading to server…');
-
-  try {
-    setStep('step-upload', 'done');
-    setStep('step-preprocess', 'active');
-    setProgress(30, 'Preprocessing images…');
-
-    const res = await fetch(`${base}/predict`, { method: 'POST', body: fd });
-
-    setStep('step-preprocess', 'done');
-    setStep('step-inference', 'active');
-    setProgress(60, 'Running crack detection model…');
-
-    if (!res.ok) throw new Error(`Server error ${res.status}`);
-    const data = await res.json();
-
-    setStep('step-inference', 'done');
-    setStep('step-render', 'active');
-    setProgress(85, 'Rendering results…');
-
-    analysisResults = data.results || [];
-    const elapsed = data.processing_time_seconds || '—';
-
-    // Attach object URLs
-    const urlMap = {};
-    uploadedFiles.forEach(f => { urlMap[f.name] = URL.createObjectURL(f); });
-    analysisResults.forEach(r => { r._url = urlMap[r.image_name] || ''; });
-
-    setProgress(100, 'Done!');
-    setStep('step-render', 'done');
-
-    setTimeout(() => {
-      progressWrap.classList.remove('visible');
-      resetSteps();
-      renderSummary(elapsed);
-      renderResults();
-      summaryGrid.style.display = 'grid';
-      resultsSection.style.display = 'block';
-      csvBtn.disabled = false;
-      analyzeBtn.disabled = false;
-      clearBtn.disabled = false;
-      showToast(`✅ Analyzed ${analysisResults.length} images in ${elapsed}s`);
-    }, 600);
-
-  } catch (err) {
-    // Demo / fallback mode — simulate results locally
-    console.warn('API unavailable, using demo mode:', err.message);
-    setStep('step-inference', 'active');
-    setProgress(60, 'Running local heuristic engine…');
-
-    analysisResults = await simulateAnalysis();
-
-    setStep('step-inference', 'done');
-    setStep('step-render', 'active');
-    setProgress(100, 'Done (Demo Mode)!');
-    setTimeout(() => {
-      progressWrap.classList.remove('visible');
-      resetSteps();
-      renderSummary('local');
-      renderResults();
-      summaryGrid.style.display = 'grid';
-      resultsSection.style.display = 'block';
-      csvBtn.disabled = false;
-      analyzeBtn.disabled = false;
-      clearBtn.disabled = false;
-      showToast('⚡ Demo mode: results are simulated. Start backend for real predictions.');
-    }, 600);
+  try{
+    setStep('s1','done');setStep('s2','active');setProgress(30,'Preprocessing…');
+    const res=await fetch(`${base}/predict`,{method:'POST',body:fd});
+    setStep('s2','done');setStep('s3','active');setProgress(65,'Running model…');
+    if(!res.ok)throw new Error(`${res.status}`);
+    const data=await res.json();
+    setStep('s3','done');setStep('s4','active');setProgress(88,'Rendering…');
+    results=data.results||[];
+    const urlMap={};
+    files.forEach(f=>{urlMap[f.name]=URL.createObjectURL(f)});
+    results.forEach(r=>{r._url=urlMap[r.image_name]||''});
+    finish(data.processing_time_seconds||'—');
+  }catch(e){
+    console.warn('API unavailable, demo mode:',e.message);
+    setStep('s3','active');
+    results=await simulate();
+    finish('demo');
+    toast('⚡ Demo mode — start backend for real predictions');
   }
 }
-// ── Local demo simulation ─────────────────────────────────────────────────────
-async function simulateAnalysis() {
-  const types = ['hairline crack', 'surface crack', 'wide crack', 'structural visible crack', 'none'];
-  const severityMap = {
-    'hairline crack': 'Safe',
-    'surface crack': 'Moderate',
-    'wide crack': 'Dangerous',
-    'structural visible crack': 'Dangerous',
-    'none': 'Safe',
-  };
-  const detailMap = {
-    'hairline crack': 'not harmful — micro-fracture, cosmetic only',
-    'surface crack': 'monitor — surface-level, may worsen',
-    'wide crack': 'structural issue — immediate inspection needed',
-    'structural visible crack': 'critical — structural integrity at risk',
-    'none': 'no crack detected',
-  };
 
-  const results = [];
-  let done = 0;
+function finish(elapsed){
+  setProgress(100,'Complete!');
+  setStep('s4','done');
+  setTimeout(()=>{
+    progWrap.classList.remove('show');
+    resetSteps();
+    renderSummary(elapsed);
+    renderResults();
+    summary.style.display='grid';
+    resultsSec.style.display='block';
+    csvBtn.disabled=false;
+    shareBtn.disabled=false;
+    aBtn.disabled=false;
+    cBtn.disabled=false;
+    toast(`🎉 Analyzed ${results.length} images`);
+  },600);
+}
 
-  for (const f of uploadedFiles) {
-    // Simulate processing with slight delay
-    await new Promise(r => setTimeout(r, 2));
-
-    const rand = Math.random();
-    let crack_type;
-    if (rand < 0.35) crack_type = 'none';
-    else if (rand < 0.55) crack_type = 'hairline crack';
-    else if (rand < 0.72) crack_type = 'surface crack';
-    else if (rand < 0.88) crack_type = 'wide crack';
-    else crack_type = 'structural visible crack';
-
-    const crackDetected = crack_type !== 'none';
-    const conf = crackDetected
-      ? +(0.62 + Math.random() * 0.34).toFixed(4)
-      : +(0.75 + Math.random() * 0.23).toFixed(4);
-
-    results.push({
-      image_name: f.name,
-      crack_detected: crackDetected,
-      crack_type,
-      severity: severityMap[crack_type],
-      severity_detail: detailMap[crack_type],
-      confidence: conf,
-      _url: URL.createObjectURL(f),
-    });
-
-    done++;
-    const pct = Math.round(40 + (done / uploadedFiles.length) * 45);
-    setProgress(pct, `Processing ${done}/${uploadedFiles.length}…`);
+// ── Demo simulation ───────────────────────────────────────────────────────────
+async function simulate(){
+  const types=['none','hairline crack','surface crack','wide crack','structural visible crack'];
+  const sevMap={'none':'Safe','hairline crack':'Safe','surface crack':'Moderate','wide crack':'Dangerous','structural visible crack':'Dangerous'};
+  const detMap={'none':'no crack detected','hairline crack':'not harmful — micro-fracture, cosmetic only','surface crack':'monitor — surface-level, may worsen','wide crack':'structural issue — immediate inspection needed','structural visible crack':'critical — structural integrity at risk'};
+  const res=[];
+  for(let i=0;i<files.length;i++){
+    await new Promise(r=>setTimeout(r,1));
+    const rand=Math.random();
+    let t=rand<0.3?'none':rand<0.5?'hairline crack':rand<0.68?'surface crack':rand<0.84?'wide crack':'structural visible crack';
+    const cd=t!=='none';
+    const conf=cd?(0.60+Math.random()*.36):(0.72+Math.random()*.24);
+    res.push({image_name:files[i].name,crack_detected:cd,crack_type:t,severity:sevMap[t],severity_detail:detMap[t],confidence:+conf.toFixed(4),_url:URL.createObjectURL(files[i])});
+    if(i%10===0) setProgress(30+Math.round((i/files.length)*55),`Processing ${i+1}/${files.length}…`);
   }
-  return results;
+  return res;
 }
 
 // ── Summary ───────────────────────────────────────────────────────────────────
-function renderSummary(elapsed) {
-  const total = analysisResults.length;
-  const cracks = analysisResults.filter(r => r.crack_detected).length;
-  const safe   = analysisResults.filter(r => !r.crack_detected).length;
-  const mod    = analysisResults.filter(r => r.severity === 'Moderate').length;
-  const danger = analysisResults.filter(r => r.severity === 'Dangerous').length;
-
-  document.getElementById('sum-total').textContent  = total;
-  document.getElementById('sum-cracks').textContent = cracks;
-  document.getElementById('sum-cracks-pct').textContent = total ? `${Math.round(cracks/total*100)}% of total` : '—';
-  document.getElementById('sum-safe').textContent   = safe;
-  document.getElementById('sum-mod').textContent    = mod;
-  document.getElementById('sum-danger').textContent = danger;
-  document.getElementById('sum-time').textContent   = typeof elapsed === 'number' ? `${elapsed}s` : elapsed;
+function renderSummary(elapsed){
+  const tot=results.length;
+  const cracks=results.filter(r=>r.crack_detected).length;
+  const safe=results.filter(r=>!r.crack_detected).length;
+  const mod=results.filter(r=>r.severity==='Moderate').length;
+  const danger=results.filter(r=>r.severity==='Dangerous').length;
+  document.getElementById('s-total').textContent=tot;
+  document.getElementById('s-cracks').textContent=cracks;
+  document.getElementById('s-pct').textContent=tot?`${Math.round(cracks/tot*100)}% of total`:'—';
+  document.getElementById('s-safe').textContent=safe;
+  document.getElementById('s-mod').textContent=mod;
+  document.getElementById('s-danger').textContent=danger;
+  document.getElementById('s-time').textContent=typeof elapsed==='number'?`${elapsed}s`:elapsed;
 }
 
-// ── Results Rendering ─────────────────────────────────────────────────────────
-document.querySelectorAll('.filter-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    activeFilter = tab.dataset.filter;
-    renderResults();
+// ── Results ───────────────────────────────────────────────────────────────────
+document.querySelectorAll('.ftab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on'); filter=t.dataset.f; renderResults();
   });
 });
 
-function renderResults() {
-  resultsGrid.innerHTML = '';
-  const filtered = analysisResults.filter(r => {
-    if (r.confidence < confidenceThreshold && r.crack_detected) return false;
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'crack') return r.crack_detected;
-    if (activeFilter === 'safe') return !r.crack_detected;
-    if (activeFilter === 'dangerous') return r.severity === 'Dangerous';
-    if (activeFilter === 'moderate') return r.severity === 'Moderate';
+function sevClass(r){
+  if(!r.crack_detected)return'none';
+  if(r.severity==='Safe')return'safe';
+  if(r.severity==='Moderate')return'moderate';
+  return'dangerous';
+}
+
+function renderResults(){
+  grid.innerHTML='';
+  const filtered=results.filter(r=>{
+    if(r.crack_detected&&r.confidence<threshold)return false;
+    if(filter==='all')return true;
+    if(filter==='crack')return r.crack_detected;
+    if(filter==='safe')return!r.crack_detected;
+    if(filter==='dangerous')return r.severity==='Dangerous';
+    if(filter==='moderate')return r.severity==='Moderate';
     return true;
   });
-
-  if (!filtered.length) {
-    resultsGrid.innerHTML = `<div style="color:var(--text3);font-size:0.85rem;grid-column:1/-1;padding:32px;text-align:center;">No results match this filter.</div>`;
+  if(!filtered.length){
+    grid.innerHTML='<div style="color:var(--fog);font-size:.85rem;grid-column:1/-1;padding:40px;text-align:center;">No results match this filter.</div>';
     return;
   }
-
-  filtered.forEach((r, i) => {
-    const card = createCard(r, i);
-    resultsGrid.appendChild(card);
+  filtered.forEach((r,i)=>{
+    grid.appendChild(makeCard(r,i));
   });
 }
 
-function severityClass(sev, crackDetected) {
-  if (!crackDetected) return 'none';
-  if (sev === 'Safe') return 'safe';
-  if (sev === 'Moderate') return 'moderate';
-  if (sev === 'Dangerous') return 'dangerous';
-  return 'none';
-}
+function makeCard(r,i){
+  const sc=sevClass(r);
+  const pct=Math.round(r.confidence*100);
+  const badgeClass={'none':'cb-none','safe':'cb-safe','moderate':'cb-mod','dangerous':'cb-danger'}[sc];
+  const badgeLabel=r.crack_detected?r.severity:'No Crack';
+  const sevCls={'none':'cs-none','safe':'cs-safe','moderate':'cs-mod','dangerous':'cs-danger'}[sc];
+  const sevIcon={'none':'🟢','safe':'🟢','moderate':'🟡','dangerous':'🔴'}[sc];
+  const confCls={'none':'cf-none','safe':'cf-safe','moderate':'cf-mod','dangerous':'cf-danger'}[sc];
 
-function createCard(r, i) {
-  const sc = severityClass(r.severity, r.crack_detected);
-  const pct = Math.round(r.confidence * 100);
+  const card=document.createElement('div');
+  card.className=`icard c-${sc==='none'?'none':sc}`;
+  card.style.animationDelay=`${Math.min(i*25,400)}ms`;
 
-  const card = document.createElement('div');
-  card.className = `img-card ${sc}`;
-  card.style.animationDelay = `${Math.min(i * 30, 500)}ms`;
-
-  const badgeClass = `badge-${sc}`;
-  const badgeLabel = r.crack_detected ? r.severity : 'No Crack';
-
-  card.innerHTML = `
-    <div class="card-img-wrap">
-      ${r._url
-        ? `<img src="${r._url}" alt="${r.image_name}" loading="lazy"/>`
-        : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:0.75rem;">No preview</div>`
-      }
+  card.innerHTML=`
+    <div class="card-img">
+      ${r._url?`<img src="${r._url}" loading="lazy" alt=""/>`:'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--wire2)">🖼</div>'}
       <span class="card-badge ${badgeClass}">${badgeLabel}</span>
     </div>
     <div class="card-body">
       <div class="card-name" title="${r.image_name}">${r.image_name}</div>
-      <div class="card-type">${r.crack_detected ? r.crack_type : '✓ No Crack Detected'}</div>
-      <span class="card-severity ${sc}">
-        ${{ none:'🟢', safe:'🟢', moderate:'🟡', dangerous:'🔴' }[sc]}
-        ${r.severity}
-      </span>
-      <div class="conf-label">
-        <span>Confidence</span>
-        <span>${pct}%</span>
+      <div class="card-type">${r.crack_detected?r.crack_type:'✓ No Crack'}</div>
+      <span class="card-sev ${sevCls}">${sevIcon} ${r.severity}</span>
+      <div class="conf-row"><span>Confidence</span><span>${pct}%</span></div>
+      <div class="conf-track"><div class="conf-fill ${confCls}" style="width:${pct}%"></div></div>
+      <div class="card-detail">${r.severity_detail||''}</div>
+      <div class="card-share">
+        <button class="share-btn sb-wa" onclick="openShareModal(${JSON.stringify(r).replace(/"/g,'&quot;')})">💬 WhatsApp</button>
+        <button class="share-btn sb-mail" onclick="shareEmail(${JSON.stringify(r).replace(/"/g,'&quot;')})">📧 Email</button>
+        <button class="share-btn sb-copy" onclick="copyCard(${JSON.stringify(r).replace(/"/g,'&quot;')})">📋 Copy</button>
       </div>
-      <div class="conf-bar">
-        <div class="conf-fill ${sc}" style="width:${pct}%"></div>
-      </div>
-      <div class="card-detail">${r.severity_detail || ''}</div>
     </div>
   `;
   return card;
 }
 
-// ── Clear ─────────────────────────────────────────────────────────────────────
-clearBtn.addEventListener('click', () => {
-  uploadedFiles = [];
-  analysisResults = [];
-  fileInput.value = '';
-  previewGrid.innerHTML = '';
-  previewSection.style.display = 'none';
-  resultsSection.style.display = 'none';
-  summaryGrid.style.display = 'none';
-  emptyState.classList.add('visible');
-  analyzeBtn.disabled = true;
-  clearBtn.disabled = true;
-  csvBtn.disabled = true;
-  progressWrap.classList.remove('visible');
-  showToast('🗑 Cleared');
+// ── Share Functions ───────────────────────────────────────────────────────────
+function buildSummaryText(res){
+  const tot=res.length;
+  const cracks=res.filter(r=>r.crack_detected).length;
+  const danger=res.filter(r=>r.severity==='Dangerous').length;
+  const mod=res.filter(r=>r.severity==='Moderate').length;
+  const safe=res.filter(r=>!r.crack_detected).length;
+  let txt=`🔍 CrackScan Analysis Report\n`;
+  txt+=`${'─'.repeat(32)}\n`;
+  txt+=`📊 Total Images: ${tot}\n`;
+  txt+=`🔴 Cracks Detected: ${cracks} (${tot?Math.round(cracks/tot*100):0}%)\n`;
+  txt+=`🟢 Safe / Clear: ${safe}\n`;
+  txt+=`🟡 Moderate: ${mod}\n`;
+  txt+=`🔴 Dangerous: ${danger}\n`;
+  txt+=`${'─'.repeat(32)}\n`;
+  if(danger>0){
+    txt+=`⚠️ DANGEROUS ITEMS:\n`;
+    res.filter(r=>r.severity==='Dangerous').slice(0,5).forEach(r=>{
+      txt+=`  • ${r.image_name}: ${r.crack_type} (${Math.round(r.confidence*100)}%)\n`;
+    });
+  }
+  txt+=`\n🌐 Analyzed by CrackScan AI\nhttps://naveen679811.github.io/crackscan`;
+  return txt;
+}
+
+function buildCardText(r){
+  return `🔍 CrackScan Result\n` +
+    `Image: ${r.image_name}\n` +
+    `Status: ${r.crack_detected?'CRACK DETECTED':'NO CRACK'}\n` +
+    `Type: ${r.crack_type}\n` +
+    `Severity: ${r.severity}\n` +
+    `Confidence: ${Math.round(r.confidence*100)}%\n` +
+    `Detail: ${r.severity_detail}\n` +
+    `\n🌐 CrackScan AI — https://naveen679811.github.io/crackscan`;
+}
+
+// All results share modal
+shareBtn.addEventListener('click',()=>{
+  shareTarget=null;
+  const txt=buildSummaryText(results);
+  sharePrev.textContent=txt;
+  document.getElementById('modal-sub').textContent=`Sharing summary of ${results.length} images`;
+  modal.classList.add('show');
 });
 
-// ── CSV Export ────────────────────────────────────────────────────────────────
-csvBtn.addEventListener('click', downloadCSV);
-
-function downloadCSV() {
-  if (!analysisResults.length) return;
-  const header = 'image_name,crack_detected,crack_type,severity,severity_detail,confidence\n';
-  const rows = analysisResults.map(r =>
-    `"${r.image_name}",${r.crack_detected},"${r.crack_type}","${r.severity}","${r.severity_detail || ''}",${r.confidence}`
-  ).join('\n');
-  const blob = new Blob([header + rows], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `crackscan_results_${Date.now()}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('📥 CSV downloaded!');
+function openShareModal(r){
+  shareTarget=r;
+  const txt=buildCardText(r);
+  sharePrev.textContent=txt;
+  document.getElementById('modal-sub').textContent=`Sharing result for: ${r.image_name}`;
+  modal.classList.add('show');
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function setProgress(pct, label) {
-  progressBar.style.width = `${pct}%`;
-  progressLabel.textContent = label;
-  progressPct.textContent = `${pct}%`;
+document.getElementById('modal-close').addEventListener('click',()=>modal.classList.remove('show'));
+modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show')});
+
+function shareVia(type){
+  const txt=shareTarget?buildCardText(shareTarget):buildSummaryText(results);
+  if(type==='whatsapp'){
+    const url=`https://wa.me/?text=${encodeURIComponent(txt)}`;
+    window.open(url,'_blank');
+    toast('💬 Opening WhatsApp…');
+  } else if(type==='email'){
+    const sub=shareTarget?`CrackScan: ${shareTarget.image_name}`:`CrackScan Analysis Report — ${results.length} Images`;
+    const url=`mailto:?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(txt)}`;
+    window.location.href=url;
+    toast('📧 Opening email client…');
+  } else if(type==='copy'){
+    navigator.clipboard.writeText(txt).then(()=>toast('📋 Copied to clipboard!')).catch(()=>toast('⚠ Copy failed'));
+  }
+  modal.classList.remove('show');
 }
 
-function setStep(id, state) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.remove('active', 'done');
-  if (state) el.classList.add(state);
+// Single card share buttons
+function shareEmail(r){
+  const txt=buildCardText(r);
+  const url=`mailto:?subject=${encodeURIComponent('CrackScan: '+r.image_name)}&body=${encodeURIComponent(txt)}`;
+  window.location.href=url;
+  toast('📧 Opening email…');
+}
+function copyCard(r){
+  navigator.clipboard.writeText(buildCardText(r)).then(()=>toast('📋 Copied!')).catch(()=>toast('⚠ Failed'));
 }
 
-function resetSteps() {
-  ['step-upload','step-preprocess','step-inference','step-render'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('active', 'done');
+// WhatsApp on card
+window.openShareModal=openShareModal;
+window.shareEmail=shareEmail;
+window.copyCard=copyCard;
+
+// ── CSV ───────────────────────────────────────────────────────────────────────
+function downloadCSV(){
+  if(!results.length)return;
+  const h='image_name,crack_detected,crack_type,severity,severity_detail,confidence\n';
+  const rows=results.map(r=>`"${r.image_name}",${r.crack_detected},"${r.crack_type}","${r.severity}","${r.severity_detail||''}",${r.confidence}`).join('\n');
+  const b=new Blob([h+rows],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download=`crackscan_${Date.now()}.csv`;a.click();
+  toast('📊 CSV downloaded!');
+  modal.classList.remove('show');
+}
+csvBtn.addEventListener('click',downloadCSV);
+window.downloadCSV=downloadCSV;
+
+// ── Clear ─────────────────────────────────────────────────────────────────────
+cBtn.addEventListener('click',()=>{
+  files=[];results=[];fi.value='';
+  document.getElementById('preview-grid').innerHTML='';
+  document.getElementById('preview-wrap').style.display='none';
+  resultsSec.style.display='none';
+  summary.style.display='none';
+  emptyEl.style.display='block';
+  aBtn.disabled=true;cBtn.disabled=true;csvBtn.disabled=true;shareBtn.disabled=true;
+  progWrap.classList.remove('show');
+  toast('🗑 Cleared');
+});
+
+// ── Progress helpers ──────────────────────────────────────────────────────────
+function setProgress(pct,label){
+  progFill.style.width=`${pct}%`;
+  progLabel.textContent=label;
+  progPct.textContent=`${pct}%`;
+}
+function setStep(id,state){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.remove('active','done');
+  if(state)el.classList.add(state);
+}
+function resetSteps(){
+  ['s1','s2','s3','s4'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.remove('active','done');
   });
 }
 
-let toastTimer;
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 </body>
