@@ -962,14 +962,14 @@ modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('s
 function shareVia(type){
   const txt=shareTarget?buildCardText(shareTarget):buildSummaryText(results);
   if(type==='whatsapp'){
-    const url=`https://wa.me/?text=${encodeURIComponent(txt)}`;
-    window.open(url,'_blank');
-    toast('💬 Opening WhatsApp…');
+    const url=`https://web.whatsapp.com/send?text=${encodeURIComponent(txt)}`;
+    window.open(url,'_blank','width=1000,height=700');
+    toast('💬 WhatsApp Web opened — select contact and click Send!');
   } else if(type==='email'){
     const sub=shareTarget?`CrackScan: ${shareTarget.image_name}`:`CrackScan Analysis Report — ${results.length} Images`;
-    const url=`mailto:?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(txt)}`;
-    window.location.href=url;
-    toast('📧 Opening email client…');
+    const gmailUrl=`https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(sub)}&body=${encodeURIComponent(txt)}`;
+    window.open(gmailUrl,'_blank','width=900,height=700');
+    toast('📧 Gmail opened — add recipient and click Send!');
   } else if(type==='copy'){
     navigator.clipboard.writeText(txt).then(()=>toast('📋 Copied to clipboard!')).catch(()=>toast('⚠ Copy failed'));
   }
@@ -979,9 +979,10 @@ function shareVia(type){
 // Single card share buttons
 function shareEmail(r){
   const txt=buildCardText(r);
-  const url=`mailto:?subject=${encodeURIComponent('CrackScan: '+r.image_name)}&body=${encodeURIComponent(txt)}`;
-  window.location.href=url;
-  toast('📧 Opening email…');
+  const sub="CrackScan Result: "+r.image_name;
+  const gmailUrl=`https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(sub)}&body=${encodeURIComponent(txt)}`;
+  window.open(gmailUrl,"_blank","width=900,height=700");
+  toast("📧 Gmail opened — add recipient and click Send!");
 }
 function copyCard(r){
   navigator.clipboard.writeText(buildCardText(r)).then(()=>toast('📋 Copied!')).catch(()=>toast('⚠ Failed'));
